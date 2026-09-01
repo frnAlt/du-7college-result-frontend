@@ -1,10 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import html2pdf from 'html2pdf.js';
 
-export default function ResultCard({ result, onReset }) {
+export default function ResultCard({ result, courses: propCourses, onReset, onSearchAgain }) {
   const resultRef = useRef(null);
   const headerRef = useRef(null);
   const [printDate, setPrintDate] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleReset = onSearchAgain || onReset;
+  const courses = (propCourses && propCourses.length > 0) ? propCourses : (result?.courses || []);
 
   useEffect(() => {
     // Format matching ss_output.jpg: M/D/YYYY, H:MM:SS AM/PM
@@ -14,6 +18,7 @@ export default function ResultCard({ result, onReset }) {
   }, []);
 
   const handleDownloadPdf = () => {
+    setIsDownloading(true);
     const cardEl = resultRef.current;
     const headerEl = headerRef.current;
 
@@ -32,16 +37,26 @@ export default function ResultCard({ result, onReset }) {
         jsPDF: { unit: 'in', format: 'legal', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(cardEl).save().then(() => {
-        headerEl.style.display = 'none';
-      });
+      html2pdf()
+        .set(opt)
+        .from(cardEl)
+        .save()
+        .then(() => {
+          headerEl.style.display = 'none';
+          setIsDownloading(false);
+        })
+        .catch((err) => {
+          console.error('html2pdf error:', err);
+          headerEl.style.display = 'none';
+          setIsDownloading(false);
+        });
+    } else {
+      setIsDownloading(false);
     }
   };
 
-  const courses = result?.courses || [];
-
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100 p-8 my-6 text-black">
+    <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100 p-8 my-6 text-black animate-fadeIn">
       
       {/* Printable / Capturable Result Container */}
       <div ref={resultRef} style={{ background: '#fff', color: '#000', padding: 4, position: 'relative' }}>
@@ -194,6 +209,7 @@ export default function ResultCard({ result, onReset }) {
         <button
           type="button"
           onClick={handleDownloadPdf}
+          disabled={isDownloading}
           style={{
             padding: '9px 22px',
             backgroundColor: '#047857',
@@ -202,15 +218,16 @@ export default function ResultCard({ result, onReset }) {
             fontWeight: 'bold',
             border: 'none',
             cursor: 'pointer',
-            fontSize: '13.5px'
+            fontSize: '13.5px',
+            opacity: isDownloading ? 0.75 : 1
           }}
         >
-          Download PDF
+          {isDownloading ? 'Downloading...' : 'Download PDF'}
         </button>
 
         <button
           type="button"
-          onClick={onReset}
+          onClick={handleReset}
           style={{
             padding: '9px 22px',
             backgroundColor: '#4b5563',
