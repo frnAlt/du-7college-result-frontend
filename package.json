@@ -2,6 +2,7 @@
   "name": "du-7college-result-archive",
   "version": "1.0.0",
   "description": "Official Affiliated 7 College Result Archive & Verification System - University of Dhaka",
+  "main": "api/index.js",
   "scripts": {
     "dev": "node scripts/dev.js",
     "dev:backend": "npm run dev --prefix backend",
@@ -9,7 +10,8 @@
     "build": "npm run build --prefix frontend",
     "start": "npm run start --prefix backend",
     "test": "npm run test --prefix backend",
-    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend"
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "postinstall": "npm install --prefix frontend && npm install --prefix backend"
   },
   "keywords": [
     "du-7college",
@@ -17,8 +19,17 @@
     "result-archive",
     "pdf-transcript",
     "react",
-    "express"
+    "express",
+    "vercel"
   ],
   "author": "Office of the Controller of Examinations, University of Dhaka",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "pdfkit": "^0.16.0"
+  }
 }
