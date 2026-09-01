@@ -2,7 +2,7 @@ const { EXTERNAL_API_BASE, EXTERNAL_API_TOKEN, ENABLE_EXTERNAL_API } = require('
 const logger = require('../utils/logger');
 
 /**
- * Service to interact with DU 7-College result API (resapi.eco.du.ac.bd)
+ * Service to interact with external DU 7-College API (if enabled)
  */
 class ExternalApiService {
   /**
@@ -11,7 +11,11 @@ class ExternalApiService {
    */
   async fetchExternalResult({ pid, yid, eid, roll, reg, clientIp = '127.0.0.1' }) {
     if (!ENABLE_EXTERNAL_API) {
-      logger.info('External API call skipped (ENABLE_EXTERNAL_API is false)');
+      return null;
+    }
+
+    if (!EXTERNAL_API_BASE) {
+      logger.warn('External API call skipped: EXTERNAL_API_BASE is not configured.');
       return null;
     }
 
@@ -21,13 +25,18 @@ class ExternalApiService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
 
+      const headers = {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DU7C-ResultArchive/1.0'
+      };
+
+      if (EXTERNAL_API_TOKEN) {
+        headers['x-api-token'] = EXTERNAL_API_TOKEN;
+      }
+
       const response = await fetch(`${EXTERNAL_API_BASE}/api/web-select`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-token': EXTERNAL_API_TOKEN,
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DU7C-ResultArchive/1.0'
-        },
+        headers,
         body: JSON.stringify({
           action: 'get_result',
           pid: String(pid || '1'),

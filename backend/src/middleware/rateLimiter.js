@@ -1,12 +1,15 @@
 const rateLimit = require('express-rate-limit');
-const { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } = require('../config/env');
+const { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX, NODE_ENV } = require('../config/env');
+
+const isTest = NODE_ENV === 'test';
 
 /**
  * Standard API rate limiter to protect against brute-force attacks
+ * Safely configured with numeric fallbacks
  */
 const apiLimiter = rateLimit({
-  windowMs: RATE_LIMIT_WINDOW_MS,
-  max: RATE_LIMIT_MAX,
+  windowMs: isTest ? 1000 : RATE_LIMIT_WINDOW_MS,
+  max: isTest ? 1000 : RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   message: {

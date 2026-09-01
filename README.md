@@ -8,13 +8,13 @@
 ## 📑 সূচিপত্র (Table of Contents)
 1. [🌟 ওভারভিউ (Overview)](#-ওভারভিউ-overview)
 2. [🔒 অ্যাক্সেস কন্ট্রোল ও লজিক (Access Control Logic)](#-অ্যাক্সেস-কন্ট্রোল-ও-লজিক-access-control-logic)
-3. [💻 লোকাল সেটআপ গাইড (Local Setup Guide)](#-লোকাল-সেটআপ-গাইড-local-setup-guide)
-4. [⚙️ রেজাল্ট ডাটা কনফিগারেশন (Data Configuration Guide)](#️-রেজাল্ট-ডাটা-কনফিগারেশন-data-configuration-guide)
-5. [▲ Vercel ডিপ্লয়মেন্ট গাইড (Vercel Deployment Guide)](#-vercel-ডিপ্লয়মেন্ট-গাইড-vercel-deployment-guide)
-6. [🚀 Render / Railway ডিপ্লয়মেন্ট গাইড (Render & Railway Deployment)](#-render--railway-ডিপ্লয়মেন্ট-গাইড-render--railway-deployment)
-7. [🧪 টেস্ট ও ভেরিফিকেশন (Automated Tests)](#-টেস্ট-ও-ভেরিফিকেশন-automated-tests)
-8. [🔌 API Endpoints](#-api-endpoints)
-9. [🔐 Environment Variables (.env)](#-environment-variables-env)
+3. [🔐 Environment Variables গাইড (.env)](#-environment-variables-গাইড-env)
+4. [💻 লোকাল সেটআপ গাইড (Local Setup Guide)](#-লোকাল-সেটআপ-গাইড-local-setup-guide)
+5. [⚙️ রেজাল্ট ডাটা কনফিগারেশন (Data Configuration Guide)](#️-রেজাল্ট-ডাটা-কনফিগারেশন-data-configuration-guide)
+6. [▲ Vercel ডিপ্লয়মেন্ট গাইড (Vercel Deployment Guide)](#-vercel-ডিপ্লয়মেন্ট-গাইড-vercel-deployment-guide)
+7. [🚀 Render / Railway ডিপ্লয়মেন্ট গাইড (Render & Railway Deployment)](#-render--railway-ডিপ্লয়মেন্ট-গাইড-render--railway-deployment)
+8. [🧪 টেস্ট ও ভেরিফিকেশন (Automated Tests)](#-টেস্ট-ও-ভেরিফিকেশন-automated-tests)
+9. [🔌 API Endpoints](#-api-endpoints)
 
 ---
 
@@ -34,7 +34,35 @@
 আপনার কনফিগার করা তথ্যের বাইরে কোনো ডাটা প্রদর্শিত হবে না:
 - **অনুমোদিত রোল ও রেজিস্ট্রেশন:** ব্যবহারকারী যখন `data/results.json`-এ থাকা সঠিক Roll Number এবং Registration Number দেবে, শুধুমাত্র তখনই শিক্ষার্থীর রেজাল্ট এবং অফিসিয়াল PDF ট্রান্সক্রিপ্ট আসবে।
 - **অননুমোদিত বা ভুল ইনপুট:** অন্য যেকোনো রোল, রেজিস্ট্রেশন বা ভুল নাম্বার দিলে কোনো এক্সটার্নাল রিকোয়েস্ট ছাড়াই তাৎক্ষণিকভাবে **“Result Not Found”** দেখাবে।
-- **সিকিউরিটি:** সম্পূর্ণ Whitelist ব্যাকএন্ডে সংরক্ষিত থাকে, ফ্রন্টএন্ড থেকে কেউ অনুমোদিত তালিকা দেখতে পারবে না।
+- **সিকিউরিটি:** সম্পূর্ণ Whitelist ব্যাকএন্ডে সংরক্ষিত থাকে, ফ্রন্টএন্ডে কোনো তালিকা এক্সপোজ হয় না।
+
+---
+
+## 🔐 Environment Variables গাইড (.env)
+
+ডিপ্লয়মেন্ট ড্যাশবোর্ডে (Render / Vercel / Railway) ভ্যারিয়েবলগুলোর কনফিগারেশন বিবরণী:
+
+| Variable Name | Required in Prod? | Safe Default Value | Description |
+|---|---|---|---|
+| `NODE_ENV` | Optional | `production` | `production` অথবা `development` |
+| `PORT` | Optional | `5000` | সার্ভার লিসেনিং পোর্ট |
+| `CLIENT_ORIGIN` | Optional | `""` (Empty) | ফ্রন্টএন্ড ডোমেইন URL (CORS-এর জন্য)। ফ্রন্টএন্ড ও ব্যাকএন্ড একই ডোমেইনে থাকলে ফাঁকা রাখা যাবে। |
+| `ENABLE_EXTERNAL_API` | Optional | `false` | এক্সটার্নাল API অন/অফ। `false` থাকলে শুধু লোকাল `data/results.json` কাজ করবে। |
+| `EXTERNAL_API_BASE` | Optional | `""` (Empty) | এক্সটার্নাল API URL (শুধুমাত্র `ENABLE_EXTERNAL_API=true` হলে প্রয়োজন)। |
+| `EXTERNAL_API_TOKEN` | Optional | `""` (Empty) | এক্সটার্নাল API টোকেন (শুধুমাত্র `ENABLE_EXTERNAL_API=true` হলে প্রয়োজন)। |
+| `RATE_LIMIT_WINDOW_MS` | Optional | `900000` (15 মিনিট) | রেট লিমিটের সময়সীমা (মিলিসেকেন্ডে)। |
+| `RATE_LIMIT_MAX` | Optional | `60` | সর্বোচ্চ অনুমোদিত রিকোয়েস্ট সংখ্যা (প্রতি IP)। |
+
+### 🚀 Production Deployment-এর জন্য সুপারিশকৃত সেটিংস:
+যদি আপনি লোকাল `data/results.json` দিয়ে রেজাল্ট দেখাতে চান (যা ডিফল্ট এবং রেকমেন্ডেড):
+
+```env
+NODE_ENV=production
+ENABLE_EXTERNAL_API=false
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=60
+```
+> 💡 `EXTERNAL_API_BASE` এবং `EXTERNAL_API_TOKEN` ড্যাশবোর্ডে **ফাঁকা (Unset)** রাখা যাবে, এতে সার্ভার ক্র্যাশ করবে না।
 
 ---
 
@@ -50,7 +78,6 @@ cd du-7college-result-frontend
 ```bash
 npm run install:all
 ```
-*(এটি রুট, ফ্রন্টএন্ড এবং ব্যাকএন্ডের সকল প্রয়োজনীয় প্যাকেজ ইনস্টল করবে)*
 
 ### ধাপ ৩: Environment Variables তৈরি করুন
 ```bash
@@ -74,41 +101,24 @@ npm run dev
 [
   {
     "id": "std-001",
-    "roll": "123456",
-    "registration": "9876543210",
-    "name": "MD. ARIFUL ISLAM",
-    "father_name": "MD. RAFIQUL ISLAM",
-    "mother_name": "MORIOM BEGUM",
-    "college_name": "Dhaka College, Dhaka",
-    "sub_name": "Computer Science & Engineering",
-    "exam_title": "B.Sc (Honours) 4th Year Examination - 2023",
-    "session_name": "2019-2020",
-    "first_gpa": "3.65",
-    "second_gpa": "3.72",
-    "third_gpa": "3.80",
-    "fourth_gpa": "3.88",
-    "cgpa": "3.76",
-    "pstatus": "PASSED (First Class)",
-    "pdate": "15 August, 2024",
+    "roll": "13569",
+    "registration": "2022140676",
+    "name": "SAZIRAZAMAN MUTTACIN",
+    "college_name": "Dhaka College",
+    "sub_name": "English",
+    "exam_title": "Honors 2nd Year 2024",
+    "session_name": "2022-23",
+    "second_gpa": "3.16",
+    "pstatus": "Promoted",
     "courses": [
       {
-        "code": "CSE-401",
-        "title": "Artificial Intelligence & Neural Networks",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
-      },
-      {
-        "code": "CSE-402",
-        "title": "Software Architecture & Design Patterns",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
+        "code": "221909",
+        "title": "Political Organization and the Political System of UK and USA",
+        "letter_grade": "B+",
+        "grade_point": "3.25",
+        "credit": "4"
       }
-    ],
-    "externalFetch": {
-      "enabled": false
-    }
+    ]
   }
 ]
 ```
@@ -119,13 +129,10 @@ npm run dev
 
 ## ▲ Vercel ডিপ্লয়মেন্ট গাইড (Vercel Deployment Guide)
 
-প্রজেক্টটিতে `vercel.json` এবং `api/index.js` কনফিগার করা রয়েছে, ফলে Vercel-এ এটি ১-ক্লিকে ডিপ্লয় হয়:
-
 1. [Vercel Dashboard](https://vercel.com/new)-এ যান।
 2. আপনার GitHub অ্যাকাউন্ট থেকে `frnAlt/du-7college-result-frontend` সিলেক্ট করে **Import** করুন।
-3. **Framework Preset:** `Vite` সিলেক্ট থাকবে।
-4. **Build & Output Settings:** ডিফল্টই থাকবে (স্বয়ংক্রিয়ভাবে `vercel.json` থেকে লোড হবে)।
-5. **Deploy** বাটনে ক্লিক করুন।
+3. **Environment Variables** সেকশনে চাইলে `NODE_ENV=production` দিন (বাকিগুলো অপশনাল)।
+4. **Deploy** বাটনে ক্লিক করুন।
 
 ---
 
@@ -140,15 +147,11 @@ npm run dev
    - **Start Command:** `npm start`
 4. **Create Web Service** বাটনে ক্লিক করুন।
 
-### Railway.app:
-1. **New Project** ➜ **Deploy from GitHub repo** সিলেক্ট করুন।
-2. রিপোজিটরি কানেক্ট করলেই Railway নিজে থেকেই `npm start` দিয়ে লাইভ করে দেবে।
-
 ---
 
 ## 🧪 টেস্ট ও ভেরিফিকেশন (Automated Tests)
 
-ব্যাকএন্ডের ভ্যালিডেশন, নট-ফাউন্ড হ্যান্ডলিং এবং PDF জেনারেশন স্বয়ংক্রিয়ভাবে টেস্ট করতে চালান:
+ব্যাকএন্ডের ভ্যালিডেশন, নট-ফাউন্ড হ্যান্ডলিং এবং PDF জেনারেশন টেস্ট করতে চালান:
 
 ```bash
 npm test
@@ -162,8 +165,8 @@ npm test
 - **Request Body:**
 ```json
 {
-  "roll": "123456",
-  "registration": "9876543210"
+  "roll": "13569",
+  "registration": "2022140676"
 }
 ```
 - **Response (Allowed Record - 200 OK):**
@@ -171,12 +174,13 @@ npm test
 {
   "success": true,
   "result": {
-    "roll": "123456",
-    "registration": "9876543210",
-    "name": "MD. ARIFUL ISLAM",
-    "college_name": "Dhaka College, Dhaka",
-    "cgpa": "3.76",
-    "pstatus": "PASSED (First Class)",
+    "roll": "13569",
+    "registration": "2022140676",
+    "name": "SAZIRAZAMAN MUTTACIN",
+    "college_name": "Dhaka College",
+    "sub_name": "English",
+    "second_gpa": "3.16",
+    "pstatus": "Promoted",
     "courses": [...]
   },
   "pdfUrl": "/api/result/pdf/..."
@@ -195,21 +199,6 @@ npm test
 - **Direct Download:** `/api/result/pdf/:token?download=1`
 
 ### ৩. Health Check (`GET /api/health`)
-
----
-
-## 🔐 Environment Variables (.env)
-
-```env
-PORT=5000
-NODE_ENV=development
-CLIENT_ORIGIN=http://localhost:5173
-EXTERNAL_API_BASE=https://resapi.eco.du.ac.bd
-EXTERNAL_API_TOKEN=8f3c1e2d3a4b5c6d7e8f9a0b1c2d3e4f
-ENABLE_EXTERNAL_API=true
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX=100
-```
 
 ---
 

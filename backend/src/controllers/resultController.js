@@ -1,9 +1,6 @@
 const resultService = require('../services/resultService');
 const logger = require('../utils/logger');
 
-/**
- * Program, Year, and Exam lists matching University of Dhaka 7-Colleges Structure
- */
 const PROGRAM_OPTIONS = [
   { pid: 1, pname: 'Honours' },
   { pid: 2, pname: 'Degree' },
@@ -21,27 +18,22 @@ const YEAR_OPTIONS = [
 const EXAM_OPTIONS_MAP = {
   '1_1': [
     { eid: 104, ename: 'Honours 1st Year 2024' },
-    { eid: 91, ename: 'Honours 1st Year 2023' },
-    { eid: 80, ename: 'Honours 1st Year 2022' }
+    { eid: 91, ename: 'Honours 1st Year 2023' }
   ],
   '1_2': [
     { eid: 105, ename: 'Honours 2nd Year 2024' },
-    { eid: 92, ename: 'Honours 2nd Year 2023' },
-    { eid: 81, ename: 'Honours 2nd Year 2022' }
+    { eid: 92, ename: 'Honours 2nd Year 2023' }
   ],
   '1_3': [
     { eid: 106, ename: 'Honours 3rd Year 2024' },
-    { eid: 93, ename: 'Honours 3rd Year 2023' },
-    { eid: 82, ename: 'Honours 3rd Year 2022' }
+    { eid: 93, ename: 'Honours 3rd Year 2023' }
   ],
   '1_4': [
     { eid: 107, ename: 'Honours 4th Year 2024' },
-    { eid: 94, ename: 'Honours 4th Year 2023' },
-    { eid: 83, ename: 'Honours 4th Year 2022' }
+    { eid: 94, ename: 'Honours 4th Year 2023' }
   ],
   '2_1': [
-    { eid: 201, ename: 'Degree 1st Year Examination 2023' },
-    { eid: 202, ename: 'Degree 1st Year Examination 2022' }
+    { eid: 201, ename: 'Degree 1st Year Examination 2023' }
   ],
   '3_1': [
     { eid: 301, ename: 'Masters Final Examination 2023' }
@@ -50,6 +42,8 @@ const EXAM_OPTIONS_MAP = {
     { eid: 401, ename: 'Masters Preliminary Examination 2023' }
   ]
 };
+
+const VALID_INPUT_PATTERN = /^[a-zA-Z0-9-]+$/;
 
 class ResultController {
   /**
@@ -71,8 +65,8 @@ class ResultController {
       if (action === 'get_eid') {
         const key = `${pid}_${yid}`;
         const exams = EXAM_OPTIONS_MAP[key] || [
-          { eid: 104, ename: 'Honours 4th Year 2023' },
-          { eid: 91, ename: 'Honours 1st Year 2023' }
+          { eid: 105, ename: 'Honours 2nd Year 2024' },
+          { eid: 104, ename: 'Honours 4th Year 2023' }
         ];
         return res.json({ options: exams });
       }
@@ -81,8 +75,16 @@ class ResultController {
         const cleanRoll = String(roll || '').trim();
         const cleanReg = String(reg || '').trim();
 
-        if (!cleanRoll || !cleanReg || cleanRoll === '0' || cleanReg === '0') {
-          return res.status(400).json({ error: 'Please enter both Roll and Registration Number.' });
+        if (!cleanRoll || cleanRoll === '0') {
+          return res.status(400).json({ error: 'Roll Number is required.' });
+        }
+
+        if (!cleanReg || cleanReg === '0') {
+          return res.status(400).json({ error: 'Registration Number is required.' });
+        }
+
+        if (cleanRoll.length < 3 || cleanRoll.length > 20 || cleanReg.length < 4 || cleanReg.length > 25 || !VALID_INPUT_PATTERN.test(cleanRoll) || !VALID_INPUT_PATTERN.test(cleanReg)) {
+          return res.status(400).json({ error: 'Invalid characters or length in Roll or Registration Number.' });
         }
 
         const clientIp = clientInfo || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
@@ -97,14 +99,13 @@ class ResultController {
 
         const pdfToken = await resultService.createPdfToken(student);
 
-        // Normalize courses
         const courses = (student.courses || []).map((c, i) => ({
           id: i + 1,
           pap_code: c.code || c.pap_code,
           pname: c.title || c.pname,
           lg: c.letter_grade || c.lg,
           gp: c.grade_point || c.gp,
-          credit: c.credit || '4.0'
+          credit: c.credit || '4'
         }));
 
         logger.info(`[web-select] Result Found for student: ${student.name} (Roll: ${student.roll})`);

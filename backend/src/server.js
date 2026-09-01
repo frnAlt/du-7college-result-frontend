@@ -9,6 +9,8 @@ const logger = require('./utils/logger');
 
 const app = express();
 
+const isDev = NODE_ENV === 'development' || NODE_ENV === 'test';
+
 // Security headers with permission for PDF embedding in iframes
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
@@ -17,20 +19,44 @@ app.use(helmet({
 }));
 
 // CORS Configuration
-const allowedOrigins = [
-  CLIENT_ORIGIN,
+const localOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:5000',
   'http://127.0.0.1:5173',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5000'
 ];
+
+const configuredOrigins = CLIENT_ORIGIN
+  ? CLIENT_ORIGIN.split(',').map(o => o.trim()).filter(Boolean)
+  : [];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || NODE_ENV === 'development') {
+    // 1. Allow same-origin, serverless rewrite, curl, or mobile app requests (no origin header)
+    if (!origin) {
       return callback(null, true);
     }
+
+    // 2. Allow configured production client origins
+    if (configuredOrigins.length > 0) {
+      if (configuredOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      if (isDev && localOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      logger.warn(`CORS blocked request from origin: ${origin}`);
+      return callback(null, false);
+    }
+
+    // 3. In development or monolithic deploy where CLIENT_ORIGIN is not set
+    if (isDev || localOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Default permissive fallback for same-domain deployments without custom origin
     return callback(null, true);
   },
   credentials: true,
@@ -54,7 +80,6 @@ app.use('/api', resultRoutes);
 // Serve Frontend in Production / Standalone deployment
 const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
 if (fs.existsSync(frontendDistPath)) {
-  logger.info(`Serving static frontend build from ${frontendDistPath}`);
   app.use(express.static(frontendDistPath));
 
   app.get('*', (req, res, next) => {
@@ -70,6 +95,7 @@ if (fs.existsSync(frontendDistPath)) {
       name: 'Affiliated 7 College Result Archive API',
       organization: 'Office of the Controller of Examinations, University of Dhaka',
       status: 'Online',
+      environment: NODE_ENV,
       endpoints: {
         webSelect: 'POST /api/web-select',
         checkResult: 'POST /api/result',
@@ -97,8 +123,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-if (process.env.NODE_ENV !== 'test') {
+// Start Server when run directly
+if (process.env.NODE_ENV !== 'test' && require.main === module) {
   app.listen(PORT, () => {
     logger.info(`================================================================`);
     logger.info(`🎓 Office of the Controller of Examinations - University of Dhaka`);

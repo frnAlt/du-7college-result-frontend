@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { DATA_FILE_PATH } = require('../config/env');
+const { DATA_FILE_PATH, ENABLE_EXTERNAL_API, EXTERNAL_API_BASE } = require('../config/env');
 const logger = require('../utils/logger');
 const externalApiService = require('./externalApiService');
 const pdfService = require('./pdfService');
@@ -22,24 +22,28 @@ class ResultService {
    */
   loadResultsData() {
     try {
-      let resolvedPath = DATA_FILE_PATH;
-      if (!fs.existsSync(resolvedPath)) {
-        // Fallback to backend/data/results.json or root data/results.json
-        const rootPath = path.resolve(__dirname, '../../../data/results.json');
-        const backendPath = path.resolve(__dirname, '../../data/results.json');
-        if (fs.existsSync(rootPath)) {
-          resolvedPath = rootPath;
-        } else if (fs.existsSync(backendPath)) {
-          resolvedPath = backendPath;
+      const candidatePaths = [
+        DATA_FILE_PATH,
+        path.resolve(__dirname, '../../data/results.json'),
+        path.resolve(__dirname, '../../../data/results.json'),
+        path.resolve(process.cwd(), 'data/results.json'),
+        path.resolve(process.cwd(), 'backend/data/results.json')
+      ];
+
+      let resolvedPath = null;
+      for (const p of candidatePaths) {
+        if (p && fs.existsSync(p)) {
+          resolvedPath = p;
+          break;
         }
       }
 
-      if (fs.existsSync(resolvedPath)) {
+      if (resolvedPath) {
         const raw = fs.readFileSync(resolvedPath, 'utf8');
         this.resultsData = JSON.parse(raw);
         logger.info(`Loaded ${this.resultsData.length} allowed student result records from ${resolvedPath}`);
       } else {
-        logger.warn(`Results data file not found at ${resolvedPath}`);
+        logger.warn(`Results data file not found among candidate paths.`);
         this.resultsData = [];
       }
     } catch (err) {
@@ -63,7 +67,7 @@ class ResultService {
         });
       }
     } catch (e) {
-      logger.warn('Could not initialize file watcher for data file');
+      // Ignore file watcher errors in serverless environments (read-only filesystem)
     }
   }
 
@@ -97,8 +101,8 @@ class ResultService {
     // Clone record to avoid mutating base data
     let studentResult = JSON.parse(JSON.stringify(matchedRecord));
 
-    // If external fetch is explicitly enabled for this student, attempt online sync
-    if (studentResult.externalFetch && studentResult.externalFetch.enabled) {
+    // Only attempt external fetch if ENABLE_EXTERNAL_API is true and student has externalFetch configured
+    if (ENABLE_EXTERNAL_API && EXTERNAL_API_BASE && studentResult.externalFetch && studentResult.externalFetch.enabled) {
       try {
         const externalData = await externalApiService.fetchExternalResult({
           pid: studentResult.externalFetch.pid,
@@ -110,7 +114,6 @@ class ResultService {
         });
 
         if (externalData && externalData.result) {
-          // Merge external fields if returned
           const extRes = externalData.result;
           studentResult.name = extRes.name || studentResult.name;
           studentResult.college_name = extRes.college_name || studentResult.college_name;
@@ -143,7 +146,6 @@ class ResultService {
    * @returns {string} token
    */
   async createPdfToken(student) {
-    // Generate secure random token
     const token = crypto.randomBytes(16).toString('hex');
     const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
 
@@ -152,7 +154,6 @@ class ResultService {
       expiresAt
     });
 
-    // Cleanup expired tokens periodically
     this.cleanExpiredTokens();
 
     return token;
@@ -176,7 +177,6 @@ class ResultService {
       return null;
     }
 
-    // Generate or return cached buffer
     if (!entry.pdfBuffer) {
       entry.pdfBuffer = await pdfService.generateResultPdf(entry.student);
     }
