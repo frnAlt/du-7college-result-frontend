@@ -6,6 +6,18 @@ const logger = require('../utils/logger');
 const externalApiService = require('./externalApiService');
 const pdfService = require('./pdfService');
 
+// Statically require the results JSON to ensure Vercel / serverless bundler traces it
+let staticResultsFallback = [];
+try {
+  staticResultsFallback = require('../../data/results.json');
+} catch (e1) {
+  try {
+    staticResultsFallback = require('../../../data/results.json');
+  } catch (e2) {
+    staticResultsFallback = [];
+  }
+}
+
 /**
  * Service to manage student result whitelist, validation, and PDF tokens
  */
@@ -18,7 +30,7 @@ class ResultService {
   }
 
   /**
-   * Load allowed results whitelist from JSON file
+   * Load allowed results whitelist from JSON file or bundled fallback
    */
   loadResultsData() {
     try {
@@ -41,14 +53,21 @@ class ResultService {
       if (resolvedPath) {
         const raw = fs.readFileSync(resolvedPath, 'utf8');
         this.resultsData = JSON.parse(raw);
-        logger.info(`Loaded ${this.resultsData.length} allowed student result records from ${resolvedPath}`);
+        logger.info(`Loaded ${this.resultsData.length} student records from ${resolvedPath}`);
+      } else if (Array.isArray(staticResultsFallback) && staticResultsFallback.length > 0) {
+        this.resultsData = JSON.parse(JSON.stringify(staticResultsFallback));
+        logger.info(`Loaded ${this.resultsData.length} student records from bundled fallback`);
       } else {
         logger.warn(`Results data file not found among candidate paths.`);
         this.resultsData = [];
       }
     } catch (err) {
-      logger.error('Failed to load allowed results dataset', err);
-      this.resultsData = [];
+      if (Array.isArray(staticResultsFallback) && staticResultsFallback.length > 0) {
+        this.resultsData = JSON.parse(JSON.stringify(staticResultsFallback));
+      } else {
+        logger.error('Failed to load allowed results dataset', err);
+        this.resultsData = [];
+      }
     }
   }
 
@@ -67,7 +86,7 @@ class ResultService {
         });
       }
     } catch (e) {
-      // Ignore file watcher errors in serverless environments (read-only filesystem)
+      // Ignore file watcher in serverless read-only environments
     }
   }
 
@@ -84,6 +103,11 @@ class ResultService {
 
     if (!cleanRoll || !cleanReg) {
       return null;
+    }
+
+    // Ensure we have data loaded
+    if (!this.resultsData || this.resultsData.length === 0) {
+      this.loadResultsData();
     }
 
     // STRICT MATCH: Both roll and registration must match the EXACT same record in allowed list

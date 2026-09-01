@@ -74,8 +74,9 @@ if (fs.existsSync(publicImagesPath)) {
   app.use(express.static(publicImagesPath));
 }
 
-// API Routes
+// Mount API routes at both /api and root (supports Vercel serverless path rewrites)
 app.use('/api', resultRoutes);
+app.use('/', resultRoutes);
 
 // Serve Frontend in Production / Standalone deployment
 const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
@@ -83,36 +84,12 @@ if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
 
   app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) {
+    if (req.path.startsWith('/api') || req.path === '/result' || req.path === '/web-select' || req.path.startsWith('/result/pdf/')) {
       return next();
     }
     res.sendFile(path.join(frontendDistPath, 'index.html'));
   });
-} else {
-  // Root Greeting Route in API-only mode
-  app.get('/', (req, res) => {
-    res.json({
-      name: 'Affiliated 7 College Result Archive API',
-      organization: 'Office of the Controller of Examinations, University of Dhaka',
-      status: 'Online',
-      environment: NODE_ENV,
-      endpoints: {
-        webSelect: 'POST /api/web-select',
-        checkResult: 'POST /api/result',
-        getPdf: 'GET /api/result/pdf/:id',
-        health: 'GET /api/health'
-      }
-    });
-  });
 }
-
-// 404 Route Handler for unmatched API routes
-app.use('/api/*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'API endpoint not found'
-  });
-});
 
 // Global Error Handler
 app.use((err, req, res, next) => {
