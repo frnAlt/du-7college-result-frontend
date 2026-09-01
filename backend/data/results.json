@@ -10,54 +10,117 @@
     "sub_name": "English",
     "exam_title": "Honors 2nd Year 2024",
     "session_name": "2022-23",
-    "first_gpa": null,
-    "second_gpa": "3.16",
+    "first_gpa": "1.92",
+    "second_gpa": "2.33",
     "third_gpa": null,
     "fourth_gpa": null,
-    "cgpa": null,
+    "cgpa": "2.13",
     "pstatus": "Promoted",
-    "pdate": null,
+    "pdate": "16/07/2026",
     "courses": [
       {
         "code": "221909",
-        "title": "Political Organization and the Political System of UK and USA",
-        "letter_grade": "B+",
-        "grade_point": "3.25",
+        "title": "Political Organization and The Political System of UK and USA",
+        "letter_grade": "C",
+        "grade_point": "2.25",
         "credit": "4"
       },
       {
         "code": "222009",
         "title": "Sociology of Bangladesh",
-        "letter_grade": "A-",
-        "grade_point": "3.50",
+        "letter_grade": "C+",
+        "grade_point": "2.50",
         "credit": "4"
       },
       {
-        "code": "ENH201",
-        "title": "Introduction to drama",
-        "letter_grade": "A-",
-        "grade_point": "3.50",
+        "code": "ENH 201",
+        "title": "Introduction to Drama",
+        "letter_grade": "D",
+        "grade_point": "2.00",
         "credit": "4"
       },
       {
-        "code": "ENH202",
-        "title": "Romantic poetry",
+        "code": "ENH 202",
+        "title": "Romantic Poetry",
+        "letter_grade": "D",
+        "grade_point": "2.00",
+        "credit": "4"
+      },
+      {
+        "code": "ENH 203",
+        "title": "17th and 18th Century Prose",
+        "letter_grade": "C+",
+        "grade_point": "2.50",
+        "credit": "4"
+      },
+      {
+        "code": "ENH 204",
+        "title": "Advanced Reading and Writing",
         "letter_grade": "B-",
         "grade_point": "2.75",
         "credit": "4"
-      },
+      }
+    ]
+  },
+  {
+    "id": "std-002",
+    "roll": "13513",
+    "registration": "2022140676",
+    "name": "SAZIRAZAMAN MUTTACIN",
+    "father_name": null,
+    "mother_name": null,
+    "college_name": "Dhaka College",
+    "sub_name": "English",
+    "exam_title": "Honors 2nd Year 2024",
+    "session_name": "2022-23",
+    "first_gpa": "1.92",
+    "second_gpa": "2.33",
+    "third_gpa": null,
+    "fourth_gpa": null,
+    "cgpa": "2.13",
+    "pstatus": "Promoted",
+    "pdate": "16/07/2026",
+    "courses": [
       {
-        "code": "ENH203",
-        "title": "17th century prose",
-        "letter_grade": "B",
-        "grade_point": "3.00",
+        "code": "221909",
+        "title": "Political Organization and The Political System of UK and USA",
+        "letter_grade": "C",
+        "grade_point": "2.25",
         "credit": "4"
       },
       {
-        "code": "ENH204",
-        "title": "Advance reading and writing",
-        "letter_grade": "B",
-        "grade_point": "3.00",
+        "code": "222009",
+        "title": "Sociology of Bangladesh",
+        "letter_grade": "C+",
+        "grade_point": "2.50",
+        "credit": "4"
+      },
+      {
+        "code": "ENH 201",
+        "title": "Introduction to Drama",
+        "letter_grade": "D",
+        "grade_point": "2.00",
+        "credit": "4"
+      },
+      {
+        "code": "ENH 202",
+        "title": "Romantic Poetry",
+        "letter_grade": "D",
+        "grade_point": "2.00",
+        "credit": "4"
+      },
+      {
+        "code": "ENH 203",
+        "title": "17th and 18th Century Prose",
+        "letter_grade": "C+",
+        "grade_point": "2.50",
+        "credit": "4"
+      },
+      {
+        "code": "ENH 204",
+        "title": "Advanced Reading and Writing",
+        "letter_grade": "B-",
+        "grade_point": "2.75",
         "credit": "4"
       }
     ]
