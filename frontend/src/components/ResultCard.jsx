@@ -7,7 +7,10 @@ export default function ResultCard({ result, onReset }) {
   const [printDate, setPrintDate] = useState('');
 
   useEffect(() => {
-    setPrintDate(new Date().toLocaleString());
+    // Format matching ss_output.jpg: M/D/YYYY, H:MM:SS AM/PM
+    const now = new Date();
+    const formatted = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}, ${now.toLocaleTimeString('en-US')}`;
+    setPrintDate(formatted);
   }, []);
 
   const handleDownloadPdf = () => {
@@ -35,37 +38,23 @@ export default function ResultCard({ result, onReset }) {
     }
   };
 
-  const thStyle = {
-    border: '1px solid #d1d5db',
-    padding: '8px 12px',
-    textAlign: 'center',
-    fontWeight: '600',
-    backgroundColor: '#ffffff'
-  };
-
-  const tdStyle = {
-    border: '1px solid #d1d5db',
-    padding: '8px 12px',
-    textAlign: 'center'
-  };
-
   const courses = result?.courses || [];
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg border border-gray-100 p-8 my-6 text-black">
       
       {/* Printable / Capturable Result Container */}
-      <div ref={resultRef} style={{ background: '#fff', color: '#000', padding: 8, position: 'relative' }}>
+      <div ref={resultRef} style={{ background: '#fff', color: '#000', padding: 4, position: 'relative' }}>
         
-        {/* DU Printable Header (Shown on downloaded PDF) */}
-        <header ref={headerRef} style={{ width: '100%', textAlign: 'center', marginBottom: 30, display: 'none', flexDirection: 'column', alignItems: 'center' }}>
+        {/* DU Printable Header (Shown during html2pdf export) */}
+        <header ref={headerRef} style={{ width: '100%', textAlign: 'center', marginBottom: 28, display: 'none', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ width: '100%', borderBottom: '2px solid black', paddingBottom: 16 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <img
                 src="/images/logo/logo.jpg"
                 alt="DU Logo"
                 style={{
-                  maxWidth: '80px',
+                  maxWidth: '85px',
                   width: '100%',
                   height: 'auto',
                   display: 'block',
@@ -85,85 +74,95 @@ export default function ResultCard({ result, onReset }) {
         </header>
 
         {/* Result Archive Title */}
-        <h3 style={{ fontWeight: 'bold', color: '#000', textAlign: 'center', marginBottom: 24, fontSize: 18, textDecoration: 'underline' }}>
-          Result Archive
-        </h3>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <h3 style={{ fontWeight: 'bold', color: '#000', fontSize: 18, textDecoration: 'underline', display: 'inline-block' }}>
+            Result Archive
+          </h3>
+        </div>
 
-        {/* Student Meta Details Grid (Matching ss_output.jpg) */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: 24, fontSize: 15 }}>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
+        {/* Student Meta Details Grid (Exact 2-column rows matching ss_output.jpg) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 24, rowGap: 8, marginBottom: 24, fontSize: 14 }}>
+          <div>
             <b>Name:</b> {result?.name}
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
+          <div>
             <b>Registration:</b> {result?.registration || result?.reg}
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
+
+          <div>
             <b>College:</b> {result?.college_name}
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
+          <div>
             <b>Subject:</b> {result?.sub_name}
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
+
+          <div>
             <b>Exam:</b> {result?.exam_title}
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
+          <div>
             <b>Session:</b> {result?.session_name}
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
+
+          <div>
             <b>Roll:</b> {result?.roll}
           </div>
-
-          {result?.first_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>1st Year GPA:</b> {parseFloat(result.first_gpa).toFixed(2)}
-            </div>
-          )}
-          {result?.second_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>2nd Year GPA:</b> {parseFloat(result.second_gpa).toFixed(2)}
-            </div>
-          )}
-          {result?.third_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>3rd Year GPA:</b> {parseFloat(result.third_gpa).toFixed(2)}
-            </div>
-          )}
-          {result?.fourth_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>4th Year GPA:</b> {parseFloat(result.fourth_gpa).toFixed(2)}
-            </div>
-          )}
-          {result?.cgpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>Final CGPA:</b> {parseFloat(result.cgpa).toFixed(2)}
-            </div>
-          )}
-
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Result:</b> <span style={{ color: '#15803d' }}>{result?.pstatus || 'Promoted'}</span>
+          <div>
+            <b>1st Year GPA:</b> {parseFloat(result?.first_gpa || 0).toFixed(2)}
           </div>
+
+          <div>
+            <b>2nd Year GPA:</b> {parseFloat(result?.second_gpa || 0).toFixed(2)}
+          </div>
+          <div>
+            <b>Final CGPA:</b> {parseFloat(result?.cgpa || 0).toFixed(2)}
+          </div>
+
+          <div>
+            <b>Result:</b> <span style={{ color: '#15803d', fontWeight: 'bold' }}>{result?.pstatus || 'Promoted'}</span>
+          </div>
+          <div></div>
         </div>
 
         {/* Course Grades Table */}
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, marginBottom: 24 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginBottom: 20 }}>
           <thead>
             <tr>
-              <th style={thStyle}>Course Code</th>
-              <th style={thStyle}>Course Title</th>
-              <th style={thStyle}>Grade</th>
-              <th style={thStyle}>Grade Point</th>
-              <th style={thStyle}>Credit</th>
+              <th style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center', fontWeight: 'bold', backgroundColor: '#ffffff' }}>
+                Course<br/>Code
+              </th>
+              <th style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center', fontWeight: 'bold', backgroundColor: '#ffffff' }}>
+                Course Title
+              </th>
+              <th style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center', fontWeight: 'bold', backgroundColor: '#ffffff' }}>
+                Grade
+              </th>
+              <th style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center', fontWeight: 'bold', backgroundColor: '#ffffff' }}>
+                Grade<br/>Point
+              </th>
+              <th style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center', fontWeight: 'bold', backgroundColor: '#ffffff' }}>
+                Credit
+              </th>
             </tr>
           </thead>
           <tbody>
             {courses && courses.length > 0 ? (
               courses.map((course, idx) => (
                 <tr key={idx}>
-                  <td style={tdStyle}>{course.code || course.pap_code}</td>
-                  <td style={tdStyle}>{course.title || course.pname || 'N/A'}</td>
-                  <td style={tdStyle}>{course.letter_grade || course.lg}</td>
-                  <td style={tdStyle}>{parseFloat(course.grade_point || course.gp || 0).toFixed(2)}</td>
-                  <td style={tdStyle}>{course.credit || '4'}</td>
+                  <td style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center' }}>
+                    {course.code || course.pap_code}
+                  </td>
+                  <td style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center' }}>
+                    {course.title || course.pname || 'N/A'}
+                  </td>
+                  <td style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center' }}>
+                    {course.letter_grade || course.lg}
+                  </td>
+                  <td style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center' }}>
+                    {parseFloat(course.grade_point || course.gp || 0).toFixed(2)}
+                  </td>
+                  <td style={{ border: '1px solid #d1d5db', padding: '8px 10px', textAlign: 'center' }}>
+                    {course.credit || '4'}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -178,32 +177,32 @@ export default function ResultCard({ result, onReset }) {
 
         {/* Result Published Date */}
         {result?.pdate && (
-          <div style={{ flex: '1 1 50%', marginBottom: 12, fontSize: 14 }}>
+          <div style={{ marginBottom: 10, fontSize: 13.5 }}>
             Result Published Date: {result.pdate}
           </div>
         )}
 
         {/* Print Date */}
-        <div style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', marginTop: 8 }}>
+        <div style={{ fontSize: 11.5, color: '#6b7280', textAlign: 'center', marginTop: 6, marginBottom: 8 }}>
           <span>Print Date: {printDate} | </span>
         </div>
 
       </div>
 
       {/* Action Buttons (Download PDF & Search Again) */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 28 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 24 }}>
         <button
           type="button"
           onClick={handleDownloadPdf}
           style={{
-            padding: '10px 24px',
+            padding: '9px 22px',
             backgroundColor: '#047857',
             color: '#fff',
             borderRadius: 6,
             fontWeight: 'bold',
             border: 'none',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '13.5px'
           }}
         >
           Download PDF
@@ -213,14 +212,14 @@ export default function ResultCard({ result, onReset }) {
           type="button"
           onClick={onReset}
           style={{
-            padding: '10px 24px',
+            padding: '9px 22px',
             backgroundColor: '#4b5563',
             color: '#fff',
             borderRadius: 6,
             fontWeight: 'bold',
             border: 'none',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '13.5px'
           }}
         >
           Search Again
