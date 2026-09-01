@@ -1,13 +1,56 @@
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 /**
+ * Web-Select helper for dynamic cascading dropdowns & result search
+ * 100% compatible with https://resapi.eco.du.ac.bd/api/web-select
+ */
+export async function fetchWebSelect(body) {
+  try {
+    const response = await fetch(`${API_BASE}/api/web-select`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('API Error in web-select:', error);
+    return null;
+  }
+}
+
+/**
  * Check student examination result
  * @param {string} roll 
  * @param {string} registration 
+ * @param {Object} extra - { pid, yid, eid }
  * @returns {Promise<{ success: boolean, result?: Object, pdfUrl?: string, message?: string }>}
  */
-export async function checkResult(roll, registration) {
+export async function checkResult(roll, registration, extra = {}) {
   try {
+    // Try web-select get_result first
+    const webSelectData = await fetchWebSelect({
+      action: 'get_result',
+      pid: extra.pid || '1',
+      yid: extra.yid || '2',
+      eid: extra.eid || 105,
+      roll: String(roll).trim(),
+      reg: String(registration).trim()
+    });
+
+    if (webSelectData && webSelectData.result) {
+      return {
+        success: true,
+        result: webSelectData.result,
+        courses: webSelectData.courses || [],
+        pdfUrl: webSelectData.pdfUrl
+      };
+    }
+
+    // Fallback to /api/result
     const response = await fetch(`${API_BASE}/api/result`, {
       method: 'POST',
       headers: {
@@ -39,8 +82,7 @@ export function getPdfUrl(path, isDownload = false) {
 }
 
 /**
- * Robust Client-Side PDF Download via Blob
- * Guarantees cross-browser file download without navigation errors
+ * Client-Side PDF Download via Blob
  */
 export async function downloadPdfBlob(pdfPath, filename = 'Student_Result.pdf') {
   try {
@@ -60,7 +102,6 @@ export async function downloadPdfBlob(pdfPath, filename = 'Student_Result.pdf') 
     setTimeout(() => window.URL.revokeObjectURL(blobUrl), 2000);
     return true;
   } catch (error) {
-    console.error('Blob download failed, falling back to direct window.open:', error);
     window.open(getPdfUrl(pdfPath, true), '_blank');
     return false;
   }
