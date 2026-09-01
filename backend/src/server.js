@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 const { PORT, CLIENT_ORIGIN, NODE_ENV } = require('./config/env');
@@ -11,7 +13,7 @@ const app = express();
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: 'cross-origin' },
-  contentSecurityPolicy: false // Allow embedded PDF viewing and modern UI assets
+  contentSecurityPolicy: false
 }));
 
 // CORS Configuration
@@ -26,11 +28,10 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server)
     if (!origin || allowedOrigins.includes(origin) || NODE_ENV === 'development') {
       return callback(null, true);
     }
-    return callback(null, true); // Permissive for easy local preview & deployment
+    return callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
@@ -38,28 +39,49 @@ app.use(cors({
 }));
 
 // Body Parsers
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
-// Root Greeting Route
-app.get('/', (req, res) => {
-  res.json({
-    name: 'BoardResultsBD API',
-    version: '1.0.0',
-    status: 'Running',
-    endpoints: {
-      checkResult: 'POST /api/result',
-      getPdf: 'GET /api/result/pdf/:id',
-      health: 'GET /api/health'
-    }
-  });
-});
+// Static images and public assets
+const publicImagesPath = path.resolve(__dirname, '../public');
+if (fs.existsSync(publicImagesPath)) {
+  app.use(express.static(publicImagesPath));
+}
 
 // API Routes
 app.use('/api', resultRoutes);
 
-// 404 Route Handler
-app.use((req, res) => {
+// Serve Frontend in Production / Standalone deployment
+const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+if (fs.existsSync(frontendDistPath)) {
+  logger.info(`Serving static frontend build from ${frontendDistPath}`);
+  app.use(express.static(frontendDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+} else {
+  // Root Greeting Route in API-only mode
+  app.get('/', (req, res) => {
+    res.json({
+      name: 'Affiliated 7 College Result Archive API',
+      organization: 'Office of the Controller of Examinations, University of Dhaka',
+      status: 'Online',
+      endpoints: {
+        webSelect: 'POST /api/web-select',
+        checkResult: 'POST /api/result',
+        getPdf: 'GET /api/result/pdf/:id',
+        health: 'GET /api/health'
+      }
+    });
+  });
+}
+
+// 404 Route Handler for unmatched API routes
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     message: 'API endpoint not found'
@@ -78,11 +100,12 @@ app.use((err, req, res, next) => {
 // Start Server
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    logger.info(`=========================================`);
-    logger.info(`🚀 BoardResultsBD Server started on port: ${PORT}`);
+    logger.info(`================================================================`);
+    logger.info(`🎓 Office of the Controller of Examinations - University of Dhaka`);
+    logger.info(`🚀 Portal & API Server running on port: ${PORT}`);
     logger.info(`🌐 Local URL: http://localhost:${PORT}`);
     logger.info(`📁 Environment: ${NODE_ENV}`);
-    logger.info(`=========================================`);
+    logger.info(`================================================================`);
   });
 }
 

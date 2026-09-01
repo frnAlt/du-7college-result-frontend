@@ -33,7 +33,7 @@ async function makeRequest(path, options = {}) {
   return { status: res.status, headers: res.headers, body };
 }
 
-describe('BoardResultsBD API Backend Test Suite', () => {
+describe('BoardResultsBD & DU 7-College API Backend Test Suite', () => {
 
   test('1. Health check returns status OK', async () => {
     const res = await makeRequest('/api/health');
@@ -115,5 +115,35 @@ describe('BoardResultsBD API Backend Test Suite', () => {
     const res = await makeRequest('/api/result/pdf/fake-token-123456');
     assert.strictEqual(res.status, 404);
     assert.strictEqual(res.body.success, false);
+  });
+
+  test('10. DU 7-College /api/web-select actions work properly', async () => {
+    // get_pid2
+    const pidRes = await makeRequest('/api/web-select', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_pid2' })
+    });
+    assert.strictEqual(pidRes.status, 200);
+    assert.ok(pidRes.body.options.length > 0);
+
+    // get_result with allowed roll/reg
+    const resultRes = await makeRequest('/api/web-select', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_result', roll: '123456', reg: '9876543210' })
+    });
+    assert.strictEqual(resultRes.status, 200);
+    assert.strictEqual(resultRes.body.result.name, 'MD. ARIFUL ISLAM');
+    assert.ok(resultRes.body.courses.length > 0);
+
+    // get_result with unlisted roll/reg
+    const notFoundRes = await makeRequest('/api/web-select', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_result', roll: '999999', reg: '8888888888' })
+    });
+    assert.strictEqual(notFoundRes.status, 404);
+    assert.ok(notFoundRes.body.error.includes('Result Not Found'));
   });
 });

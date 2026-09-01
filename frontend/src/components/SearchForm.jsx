@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Search, Hash, FileText, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Search, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function SearchForm({ onSearch, isLoading }) {
-  const [roll, setRoll] = useState('');
+  const [program, setProgram] = useState('1'); // Honours
+  const [examYear, setExamYear] = useState('4'); // Fourth Year
+  const [exam, setExam] = useState('104'); // Honours 4th Year 2023
   const [registration, setRegistration] = useState('');
+  const [roll, setRoll] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = (e) => {
@@ -14,12 +17,12 @@ export default function SearchForm({ onSearch, isLoading }) {
     const cleanReg = registration.trim();
 
     if (!cleanRoll) {
-      setErrorMsg('Please enter your Roll Number / রোল নম্বর লিখুন');
+      setErrorMsg('Please enter your roll number.');
       return;
     }
 
     if (!cleanReg) {
-      setErrorMsg('Please enter your Registration Number / রেজিস্ট্রেশন নম্বর লিখুন');
+      setErrorMsg('Please enter your registration number.');
       return;
     }
 
@@ -33,121 +36,149 @@ export default function SearchForm({ onSearch, isLoading }) {
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-200/80 overflow-hidden">
+    <div className="w-full max-w-lg mx-auto">
+      <div className="bg-white rounded-lg shadow-md border border-slate-200 p-6 sm:p-8">
         
-        {/* Card Header Banner */}
-        <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-slate-800 px-6 py-5 text-white">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-              <Search className="w-5 h-5 text-emerald-200" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold tracking-wide">
-                CHECK EXAMINATION RESULT
-              </h2>
-              <p className="text-xs text-emerald-100/90 font-medium">
-                ফলাফল অনুসন্ধানের জন্য রোল ও রেজিস্ট্রেশন নম্বর দিন
-              </p>
-            </div>
+        <h2 className="text-xl font-bold text-center text-slate-800 mb-6 pb-2 border-b border-slate-100">
+          Result Search
+        </h2>
+
+        {errorMsg && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded">
+            {errorMsg}
           </div>
-        </div>
+        )}
 
-        {/* Search Form */}
-        <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           
-          {errorMsg && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium animate-shake">
-              {errorMsg}
-            </div>
-          )}
-
-          {/* Roll Number Input */}
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              Roll Number <span className="text-emerald-600 font-normal font-bengali">(রোল নম্বর)</span> <span className="text-red-500">*</span>
+          {/* Program Select */}
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-slate-700">
+              Program <span className="text-red-500">*</span>
             </label>
-            <div className="relative rounded-xl shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Hash className="w-4 h-4" />
-              </div>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                disabled={isLoading}
-                value={roll}
-                onChange={(e) => setRoll(e.target.value)}
-                placeholder="Enter Examination Roll (e.g. 123456)"
-                className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all disabled:opacity-60"
-              />
-            </div>
+            <select
+              value={program}
+              onChange={(e) => setProgram(e.target.value)}
+              disabled={isLoading}
+              className="w-full px-3 py-2.5 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
+            >
+              <option value="1">Honours</option>
+              <option value="2">Degree</option>
+              <option value="3">Masters</option>
+              <option value="4">Masters Preliminary</option>
+            </select>
+          </div>
+
+          {/* Exam Year Select */}
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-slate-700">
+              Exam Year <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={examYear}
+              onChange={(e) => setExamYear(e.target.value)}
+              disabled={isLoading}
+              className="w-full px-3 py-2.5 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
+            >
+              <option value="1">First Year</option>
+              <option value="2">Second Year</option>
+              <option value="3">Third Year</option>
+              <option value="4">Fourth Year</option>
+            </select>
+          </div>
+
+          {/* Exam Select */}
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-slate-700">
+              Exam <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={exam}
+              onChange={(e) => setExam(e.target.value)}
+              disabled={isLoading}
+              className="w-full px-3 py-2.5 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
+            >
+              <option value="104">Honours 4th Year 2023</option>
+              <option value="91">Honours 1st Year 2023</option>
+              <option value="105">Honours 2nd Year 2023</option>
+              <option value="106">Honours 3rd Year 2023</option>
+            </select>
           </div>
 
           {/* Registration Number Input */}
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              Registration Number <span className="text-emerald-600 font-normal font-bengali">(রেজিস্ট্রেশন নম্বর)</span> <span className="text-red-500">*</span>
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-slate-700">
+              Registration Number <span className="text-red-500">*</span>
             </label>
-            <div className="relative rounded-xl shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <FileText className="w-4 h-4" />
-              </div>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                disabled={isLoading}
-                value={registration}
-                onChange={(e) => setRegistration(e.target.value)}
-                placeholder="Enter Registration No (e.g. 9876543210)"
-                className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all disabled:opacity-60"
-              />
-            </div>
+            <input
+              type="text"
+              inputMode="numeric"
+              disabled={isLoading}
+              value={registration}
+              onChange={(e) => setRegistration(e.target.value)}
+              placeholder="Enter your registration number"
+              className="w-full px-3 py-2.5 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
+            />
+          </div>
+
+          {/* Roll Number Input */}
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-slate-700">
+              Roll Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              disabled={isLoading}
+              value={roll}
+              onChange={(e) => setRoll(e.target.value)}
+              placeholder="Enter your roll number"
+              className="w-full px-3 py-2.5 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
+            />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-75"
+            className="w-full mt-2 py-2.5 px-4 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold rounded transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Checking Database... / যাচাই করা হচ্ছে...</span>
+                <span>Searching Result...</span>
               </>
             ) : (
               <>
                 <Search className="w-4 h-4" />
-                <span>CHECK RESULT / ফলাফল দেখুন</span>
+                <span>Search Result</span>
               </>
             )}
           </button>
         </form>
 
-        {/* Quick Testing helper box */}
-        <div className="bg-slate-50 border-t border-slate-100 p-4 sm:p-5">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 mb-2.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Allowed Demo Credentials (পরীক্ষা করার জন্য ক্লিক করুন):</span>
+        {/* Quick Demo Test Box */}
+        <div className="mt-6 pt-4 border-t border-slate-100 bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-lg text-xs text-slate-600">
+          <div className="flex items-center gap-1 font-semibold mb-2 text-slate-700">
+            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <span>Allowed Test Credentials (ক্লিক করলেই ফিল হবে):</span>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => handleQuickFill('123456', '9876543210')}
-              className="text-xs bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 font-medium px-2.5 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+              className="bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-800 border border-slate-300 px-2.5 py-1.5 rounded font-medium transition flex items-center gap-1 cursor-pointer shadow-2xs"
             >
               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              <span>Roll: <b>123456</b> / Reg: <b>9876543210</b></span>
+              <span>Roll: <b>123456</b> | Reg: <b>9876543210</b></span>
             </button>
             <button
               type="button"
               onClick={() => handleQuickFill('202401', '1810987654')}
-              className="text-xs bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 font-medium px-2.5 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+              className="bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-800 border border-slate-300 px-2.5 py-1.5 rounded font-medium transition flex items-center gap-1 cursor-pointer shadow-2xs"
             >
               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              <span>Roll: <b>202401</b> / Reg: <b>1810987654</b></span>
+              <span>Roll: <b>202401</b> | Reg: <b>1810987654</b></span>
             </button>
           </div>
         </div>

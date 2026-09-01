@@ -4,7 +4,12 @@ const resultController = require('../controllers/resultController');
 const { validateResultRequest } = require('../middleware/validator');
 const { apiLimiter } = require('../middleware/rateLimiter');
 
-// Check student result with rate limiting & strict whitelist validation
+// Compatibility endpoint for https://resapi.eco.du.ac.bd/api/web-select
+router.post('/web-select', apiLimiter, (req, res) => {
+  resultController.handleWebSelect(req, res);
+});
+
+// Primary result check endpoint
 router.post('/result', apiLimiter, validateResultRequest, (req, res) => {
   resultController.checkResult(req, res);
 });
