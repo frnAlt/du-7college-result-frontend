@@ -6,7 +6,7 @@ const logger = require('../utils/logger');
 const externalApiService = require('./externalApiService');
 const pdfService = require('./pdfService');
 
-// Statically require the results JSON to ensure Vercel / serverless bundler traces it
+// Statically require the results JSON to ensure Vercel NFT bundler includes it
 let staticResultsFallback = [];
 try {
   staticResultsFallback = require('../../data/results.json');
@@ -18,13 +18,16 @@ try {
   }
 }
 
+// Consistent HMAC signing key for stateless token verification across lambda instances
+const TOKEN_SECRET = process.env.PDF_TOKEN_SECRET || 'du-7college-result-archive-signing-key-2024';
+
 /**
- * Service to manage student result whitelist, validation, and PDF tokens
+ * Service to manage student result whitelist, validation, and stateless PDF tokens
  */
 class ResultService {
   constructor() {
     this.resultsData = [];
-    this.pdfTokenCache = new Map(); // token -> { student, expiresAt, pdfBuffer }
+    this.pdfTokenCache = new Map(); // Optional in-memory cache
     this.loadResultsData();
     this.setupFileWatcher();
   }
@@ -86,7 +89,7 @@ class ResultService {
         });
       }
     } catch (e) {
-      // Ignore file watcher in serverless read-only environments
+      // Ignore file watcher in serverless environments
     }
   }
 
@@ -105,7 +108,6 @@ class ResultService {
       return null;
     }
 
-    // Ensure we have data loaded
     if (!this.resultsData || this.resultsData.length === 0) {
       this.loadResultsData();
     }
@@ -118,14 +120,11 @@ class ResultService {
     });
 
     if (!matchedRecord) {
-      // Not allowed or not found in whitelist
       return null;
     }
 
-    // Clone record to avoid mutating base data
     let studentResult = JSON.parse(JSON.stringify(matchedRecord));
 
-    // Only attempt external fetch if ENABLE_EXTERNAL_API is true and student has externalFetch configured
     if (ENABLE_EXTERNAL_API && EXTERNAL_API_BASE && studentResult.externalFetch && studentResult.externalFetch.enabled) {
       try {
         const externalData = await externalApiService.fetchExternalResult({
@@ -165,59 +164,99 @@ class ResultService {
   }
 
   /**
-   * Create a temporary secure PDF download token for a verified student record
+   * Create a stateless, HMAC-signed PDF token for a verified student record
+   * Works across multiple serverless lambda containers
    * @param {Object} student 
    * @returns {string} token
    */
   async createPdfToken(student) {
-    const token = crypto.randomBytes(16).toString('hex');
-    const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours validity
+    const payload = {
+      r: String(student.roll || '').trim(),
+      g: String(student.registration || '').trim(),
+      id: student.id || '',
+      exp: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days validity
+    };
 
+    const dataB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const signature = crypto.createHmac('sha256', TOKEN_SECRET).update(dataB64).digest('base64url');
+    const token = `${dataB64}.${signature}`;
+
+    // Also populate in-memory cache for instant lookup
     this.pdfTokenCache.set(token, {
       student,
-      expiresAt
+      expiresAt: payload.exp
     });
-
-    this.cleanExpiredTokens();
 
     return token;
   }
 
   /**
-   * Retrieve student record or generate PDF buffer by token
+   * Retrieve student record and generate PDF buffer by token (Stateless & Serverless Safe)
    * @param {string} token 
    * @returns {Promise<{ student: Object, buffer: Buffer } | null>}
    */
   async getPdfByToken(token) {
-    if (!token) return null;
+    if (!token || typeof token !== 'string') return null;
 
-    const entry = this.pdfTokenCache.get(token);
-    if (!entry) {
-      return null;
+    if (!this.resultsData || this.resultsData.length === 0) {
+      this.loadResultsData();
     }
 
-    if (Date.now() > entry.expiresAt) {
-      this.pdfTokenCache.delete(token);
-      return null;
+    // 1. Check in-memory cache first
+    const cachedEntry = this.pdfTokenCache.get(token);
+    if (cachedEntry && Date.now() <= cachedEntry.expiresAt) {
+      if (!cachedEntry.pdfBuffer) {
+        cachedEntry.pdfBuffer = await pdfService.generateResultPdf(cachedEntry.student);
+      }
+      return {
+        student: cachedEntry.student,
+        buffer: cachedEntry.pdfBuffer
+      };
     }
 
-    if (!entry.pdfBuffer) {
-      entry.pdfBuffer = await pdfService.generateResultPdf(entry.student);
-    }
+    // 2. Stateless HMAC token verification (Solves Vercel serverless multi-instance state)
+    if (token.includes('.')) {
+      const parts = token.split('.');
+      if (parts.length === 2) {
+        const [dataB64, sig] = parts;
+        const expectedSig = crypto.createHmac('sha256', TOKEN_SECRET).update(dataB64).digest('base64url');
 
-    return {
-      student: entry.student,
-      buffer: entry.pdfBuffer
-    };
-  }
+        if (sig === expectedSig) {
+          try {
+            const payload = JSON.parse(Buffer.from(dataB64, 'base64url').toString('utf8'));
+            if (!payload.exp || Date.now() <= payload.exp) {
+              const matchedStudent = this.resultsData.find(s => {
+                const sRoll = String(s.roll || '').trim();
+                const sReg = String(s.registration || '').trim();
+                return sRoll === payload.r && sReg === payload.g;
+              });
 
-  cleanExpiredTokens() {
-    const now = Date.now();
-    for (const [token, data] of this.pdfTokenCache.entries()) {
-      if (now > data.expiresAt) {
-        this.pdfTokenCache.delete(token);
+              if (matchedStudent) {
+                const pdfBuffer = await pdfService.generateResultPdf(matchedStudent);
+                return {
+                  student: matchedStudent,
+                  buffer: pdfBuffer
+                };
+              }
+            }
+          } catch (e) {
+            logger.warn('Failed to parse stateless PDF token payload');
+          }
+        }
       }
     }
+
+    // 3. Fallback: Lookup by student ID or Roll in whitelist
+    const directMatch = this.resultsData.find(s => s.id === token || s.roll === token);
+    if (directMatch) {
+      const pdfBuffer = await pdfService.generateResultPdf(directMatch);
+      return {
+        student: directMatch,
+        buffer: pdfBuffer
+      };
+    }
+
+    return null;
   }
 }
 

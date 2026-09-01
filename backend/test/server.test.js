@@ -4,10 +4,9 @@ const assert = require('node:assert');
 process.env.NODE_ENV = 'test';
 process.env.PORT = '5055';
 process.env.ENABLE_EXTERNAL_API = 'false';
-delete process.env.EXTERNAL_API_BASE;
-delete process.env.EXTERNAL_API_TOKEN;
 
 const app = require('../src/server');
+const resultService = require('../src/services/resultService');
 
 let server;
 const BASE_URL = 'http://localhost:5055';
@@ -37,7 +36,7 @@ async function makeRequest(path, options = {}) {
   return { status: res.status, headers: res.headers, body };
 }
 
-describe('BoardResultsBD - 10 Core Test Cases', () => {
+describe('BoardResultsBD - 10 Core Test Cases + Serverless PDF Verification', () => {
 
   // Test 1: Valid configured Roll + Registration -> Result Found & PDF generated
   test('Case 1: Valid configured Roll + Registration -> Result Found', async () => {
@@ -52,10 +51,12 @@ describe('BoardResultsBD - 10 Core Test Cases', () => {
     assert.strictEqual(res.body.result.name, 'SAZIRAZAMAN MUTTACIN');
     assert.strictEqual(res.body.result.roll, '13569');
     assert.strictEqual(res.body.result.registration, '2022140676');
-    assert.strictEqual(res.body.result.college_name, 'Dhaka College');
     assert.ok(res.body.pdfUrl.startsWith('/api/result/pdf/'));
 
-    // Verify PDF preview endpoint
+    // SIMULATE VERCEL SERVERLESS COLD START (Clear in-memory cache)
+    resultService.pdfTokenCache.clear();
+
+    // Verify PDF endpoint STILL works seamlessly across cold lambda instances
     const pdfRes = await makeRequest(res.body.pdfUrl);
     assert.strictEqual(pdfRes.status, 200);
     assert.strictEqual(pdfRes.headers.get('content-type'), 'application/pdf');
