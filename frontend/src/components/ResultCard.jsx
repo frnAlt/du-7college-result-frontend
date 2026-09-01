@@ -1,229 +1,219 @@
-import React, { useRef, useState, useEffect } from 'react';
-import html2pdf from 'html2pdf.js';
+import React, { useState, useEffect } from 'react';
+import { Download, Eye, ArrowLeft, Printer, Loader2 } from 'lucide-react';
+import { getPdfUrl, downloadPdfBlob } from '../services/api';
 
-export default function ResultCard({ result, onReset }) {
-  const resultRef = useRef(null);
-  const headerRef = useRef(null);
+export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }) {
   const [printDate, setPrintDate] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
-    setPrintDate(new Date().toLocaleString());
+    setPrintDate(new Date().toLocaleString('en-US', {
+      timeZone: 'Asia/Dhaka',
+      dateStyle: 'medium',
+      timeStyle: 'medium'
+    }));
   }, []);
 
-  const handleDownloadPdf = () => {
-    const cardEl = resultRef.current;
-    const headerEl = headerRef.current;
-
-    if (cardEl && headerEl) {
-      headerEl.style.display = 'flex';
-      cardEl.style.transform = '';
-      cardEl.style.transformOrigin = '';
-      cardEl.style.width = '100%';
-      cardEl.style.background = '#fff';
-
-      const opt = {
-        margin: 0.9,
-        filename: `${result?.name || 'student'} _7college_result.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#fff' },
-        jsPDF: { unit: 'in', format: 'legal', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(cardEl).save().then(() => {
-        headerEl.style.display = 'none';
-      });
-    }
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    const safeName = (result?.name || 'Student').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `${safeName}_7college_result.pdf`;
+    await downloadPdfBlob(pdfUrl, filename);
+    setIsDownloading(false);
   };
 
-  const thStyle = {
-    border: '1px solid #d1d5db',
-    padding: 8,
-    textAlign: 'center',
-    fontWeight: '600',
-    backgroundColor: '#f3f4f6'
+  const handlePrint = () => {
+    window.print();
   };
-
-  const tdStyle = {
-    border: '1px solid #d1d5db',
-    padding: 8,
-    textAlign: 'center'
-  };
-
-  const courses = result?.courses || [];
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 my-6 text-black">
+    <div className="w-full max-w-3xl mx-auto space-y-6">
       
-      {/* Printable / Capturable Result Container */}
-      <div ref={resultRef} style={{ background: '#fff', color: '#000', padding: 8, position: 'relative' }}>
+      {/* Top Action Buttons (no-print) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-lg border border-slate-200 shadow-sm no-print">
+        <button
+          type="button"
+          onClick={onReset}
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white text-xs font-semibold rounded transition cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Search Again</span>
+        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onOpenPdfPreview}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold rounded transition cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>Open PDF</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded transition cursor-pointer disabled:opacity-75"
+          >
+            {isDownloading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Downloading...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5" />
+                <span>Download PDF</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded transition border border-slate-300 cursor-pointer"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>Print</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Official Result Sheet Box */}
+      <div className="print-card w-full bg-white rounded-lg shadow-lg border border-slate-200 p-6 sm:p-8 text-slate-900">
         
-        {/* DU Printable Header (Included inside generated PDF) */}
-        <header ref={headerRef} style={{ width: '100%', textAlign: 'center', marginBottom: 40, display: 'none' }}>
-          <div style={{ width: '100%', borderBottom: '2px solid black', paddingBottom: 16 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img
-                src="/images/logo/logo.jpg"
-                alt="DU Logo"
-                style={{
-                  maxWidth: '100px',
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block',
-                  margin: '0 auto',
-                  objectFit: 'contain',
-                  objectPosition: 'center',
-                  aspectRatio: '1 / 1'
-                }}
-              />
-              <h1 style={{ fontSize: 24, fontWeight: 'bold', color: '#000', margin: 0 }}>
-                University of Dhaka
-              </h1>
-              <h2 style={{ fontSize: 20, fontWeight: 600, color: '#333', margin: 0 }}>
-                Affiliated 7 Colleges
-              </h2>
-            </div>
-          </div>
-        </header>
+        {/* DU Result Header */}
+        <div className="text-center pb-5 mb-5 border-b-2 border-slate-900 flex flex-col items-center">
+          <img
+            src="/images/logo/logo.jpg"
+            alt="University of Dhaka Logo"
+            className="w-20 h-20 object-contain mx-auto mb-2"
+          />
+          <h1 className="text-2xl font-black text-slate-950 uppercase tracking-tight">
+            University of Dhaka
+          </h1>
+          <h2 className="text-lg font-bold text-slate-800">
+            Affiliated 7 Colleges
+          </h2>
+          <h3 className="text-sm font-extrabold text-slate-900 underline mt-2 uppercase tracking-wide">
+            Result Archive
+          </h3>
+        </div>
 
-        {/* Result Archive Title */}
-        <h3 style={{ fontWeight: 'bold', color: '#000', textAlign: 'center', marginBottom: 24, fontSize: 18, textDecoration: 'underline' }}>
-          Result Archive
-        </h3>
-
-        {/* Student Meta Details Grid (Matching resapi.eco.du.ac.bd) */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: 24, fontSize: 15 }}>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Name:</b> {result?.name}
+        {/* Student Meta Details Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-sm mb-6">
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">Name:</span>
+            <span className="text-slate-800 font-semibold">{result.name}</span>
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Registration:</b> {result?.registration || result?.reg}
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">Registration:</span>
+            <span className="font-mono text-slate-800 font-semibold">{result.registration}</span>
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>College:</b> {result?.college_name}
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">College:</span>
+            <span className="text-slate-800 font-semibold">{result.college_name}</span>
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Subject:</b> {result?.sub_name}
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">Subject:</span>
+            <span className="text-slate-800 font-semibold">{result.sub_name}</span>
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Exam:</b> {result?.exam_title}
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">Exam:</span>
+            <span className="text-slate-800 font-semibold">{result.exam_title}</span>
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Session:</b> {result?.session_name}
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">Session:</span>
+            <span className="text-slate-800 font-semibold">{result.session_name}</span>
           </div>
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Roll:</b> {result?.roll}
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">Roll:</span>
+            <span className="font-mono text-slate-800 font-semibold">{result.roll}</span>
           </div>
 
-          {result?.first_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>1st Year GPA:</b> {parseFloat(result.first_gpa).toFixed(2)}
+          {result.first_gpa && (
+            <div className="flex">
+              <span className="font-bold min-w-[110px] text-slate-900">1st Year GPA:</span>
+              <span className="text-slate-800 font-semibold">{Number(result.first_gpa).toFixed(2)}</span>
             </div>
           )}
-          {result?.second_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>2nd Year GPA:</b> {parseFloat(result.second_gpa).toFixed(2)}
+          {result.second_gpa && (
+            <div className="flex">
+              <span className="font-bold min-w-[110px] text-slate-900">2nd Year GPA:</span>
+              <span className="text-slate-800 font-semibold">{Number(result.second_gpa).toFixed(2)}</span>
             </div>
           )}
-          {result?.third_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>3rd Year GPA:</b> {parseFloat(result.third_gpa).toFixed(2)}
+          {result.third_gpa && (
+            <div className="flex">
+              <span className="font-bold min-w-[110px] text-slate-900">3rd Year GPA:</span>
+              <span className="text-slate-800 font-semibold">{Number(result.third_gpa).toFixed(2)}</span>
             </div>
           )}
-          {result?.fourth_gpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>4th Year GPA:</b> {parseFloat(result.fourth_gpa).toFixed(2)}
+          {result.fourth_gpa && (
+            <div className="flex">
+              <span className="font-bold min-w-[110px] text-slate-900">4th Year GPA:</span>
+              <span className="text-slate-800 font-semibold">{Number(result.fourth_gpa).toFixed(2)}</span>
             </div>
           )}
-          {result?.cgpa && (
-            <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-              <b>Final CGPA:</b> {parseFloat(result.cgpa).toFixed(2)}
+          {result.cgpa && (
+            <div className="flex">
+              <span className="font-bold min-w-[110px] text-slate-900">Final CGPA:</span>
+              <span className="font-bold text-slate-950">{Number(result.cgpa).toFixed(2)}</span>
             </div>
           )}
-
-          <div style={{ flex: '1 1 50%', marginBottom: 8 }}>
-            <b>Result:</b> <span style={{ color: '#15803d', fontWeight: 'bold' }}>{result?.pstatus || 'Promoted'}</span>
+          <div className="flex">
+            <span className="font-bold min-w-[110px] text-slate-900">Result:</span>
+            <span className="font-bold text-emerald-700">{result.pstatus || 'PASSED'}</span>
           </div>
         </div>
 
         {/* Course Grades Table */}
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, marginBottom: 24 }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f3f4f6' }}>
-              <th style={thStyle}>Course Code</th>
-              <th style={{ ...thStyle, textAlign: 'left' }}>Course Title</th>
-              <th style={thStyle}>Grade</th>
-              <th style={thStyle}>Grade Point</th>
-              <th style={thStyle}>Credit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {courses && courses.length > 0 ? (
-              courses.map((course, idx) => (
-                <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? '#fff' : '#f9fafb' }}>
-                  <td style={tdStyle}>{course.code || course.pap_code}</td>
-                  <td style={{ ...tdStyle, textAlign: 'left' }}>{course.title || course.pname || 'N/A'}</td>
-                  <td style={{ ...tdStyle, color: '#15803d', fontWeight: 'bold' }}>{course.letter_grade || course.lg}</td>
-                  <td style={tdStyle}>{parseFloat(course.grade_point || course.gp || 0).toFixed(2)}</td>
-                  <td style={tdStyle}>{course.credit || '4'}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} style={{ textAlign: 'center', color: '#64748b', padding: 12 }}>
-                  No course data found.
-                </td>
+        <div className="overflow-x-auto mb-6">
+          <table className="w-full border-collapse border border-slate-300 text-sm text-center">
+            <thead>
+              <tr className="bg-slate-100 text-slate-800 font-bold">
+                <th className="border border-slate-300 px-3 py-2">Course Code</th>
+                <th className="border border-slate-300 px-3 py-2 text-left">Course Title</th>
+                <th className="border border-slate-300 px-3 py-2">Grade</th>
+                <th className="border border-slate-300 px-3 py-2">Grade Point</th>
+                <th className="border border-slate-300 px-3 py-2">Credit</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-
-        {/* Result Published Date */}
-        {result?.pdate && (
-          <div style={{ flex: '1 1 50%', marginBottom: 8, fontSize: 14 }}>
-            Result Published Date: {result.pdate}
-          </div>
-        )}
-
-        {/* Print Date */}
-        <div style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', marginTop: 12 }}>
-          <span>Print Date: {printDate}</span>
+            </thead>
+            <tbody>
+              {result.courses && result.courses.length > 0 ? (
+                result.courses.map((course, idx) => (
+                  <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                    <td className="border border-slate-300 px-3 py-2 font-mono font-medium">{course.code || course.pap_code}</td>
+                    <td className="border border-slate-300 px-3 py-2 text-left">{course.title || course.pname}</td>
+                    <td className="border border-slate-300 px-3 py-2 font-bold text-emerald-700">{course.letter_grade || course.lg}</td>
+                    <td className="border border-slate-300 px-3 py-2 font-medium">{Number(course.grade_point || course.gp).toFixed(2)}</td>
+                    <td className="border border-slate-300 px-3 py-2 text-slate-600">{course.credit}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="border border-slate-300 p-4 text-slate-500">
+                    No course data found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
-      </div>
+        {/* Footer Meta */}
+        <div className="text-xs text-slate-500 space-y-1 pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between">
+          <div>
+            <span>Result Published Date: </span>
+            <span className="font-semibold text-slate-700">{result.pdate || '15 August, 2024'}</span>
+          </div>
+          <div>
+            <span>Print Date: </span>
+            <span className="font-semibold text-slate-700">{printDate}</span>
+          </div>
+        </div>
 
-      {/* Action Buttons (Download PDF & Search Again) */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 32 }}>
-        <button
-          type="button"
-          onClick={handleDownloadPdf}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#047857',
-            color: '#fff',
-            borderRadius: 4,
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          Download PDF
-        </button>
-
-        <button
-          type="button"
-          onClick={onReset}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#4b5563',
-            color: '#fff',
-            borderRadius: 4,
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          Search Again
-        </button>
       </div>
 
     </div>
