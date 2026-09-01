@@ -17,9 +17,9 @@ class PdfService {
           margins: { top: 36, bottom: 36, left: 36, right: 36 },
           info: {
             Title: `Academic Result - ${student.name} (${student.roll})`,
-            Author: 'University Result Archive / BoardResultsBD',
-            Subject: 'Official Academic Transcript & Result Sheet',
-            Keywords: 'Result, Transcript, GPA, DU, Board Results'
+            Author: 'University of Dhaka - Affiliated 7 Colleges Result Archive',
+            Subject: 'Official Examination Transcript & Provisional Result Sheet',
+            Keywords: 'DU 7 College, University of Dhaka, Result Archive, Transcript, GPA'
           }
         });
 
@@ -74,7 +74,7 @@ class PdfService {
            .fontSize(10)
            .text('STUDENT INFORMATION', 46, startDetailY + 6);
 
-        // Details grid (Left & Right columns)
+        // Details grid
         const row1 = startDetailY + 28;
         const row2 = startDetailY + 44;
         const row3 = startDetailY + 60;
@@ -158,7 +158,6 @@ class PdfService {
         const tableY = doc.y;
         doc.roundedRect(36, tableY, 523, 20, 2).fillColor('#1e3a8a').fill();
         
-        // Table Headers
         doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(8.5);
         doc.text('SL', 42, tableY + 5, { width: 25, align: 'center' });
         doc.text('Course Code', 72, tableY + 5, { width: 80, align: 'left' });
@@ -245,7 +244,7 @@ class PdfService {
            .fontSize(7.5)
            .text(`System Generated Verification Document | Printed on: ${printTime} (BST)`, 36, footerY + 8, { align: 'left', width: 340 });
 
-        doc.text(`Doc ID: BD-RES-${student.roll}-${Buffer.from(student.registration).toString('base64').substring(0, 6)}`, 36, footerY + 19, { align: 'left' });
+        doc.text(`Doc ID: DU7C-RES-${student.roll}-${Buffer.from(student.registration).toString('base64').substring(0, 6)}`, 36, footerY + 19, { align: 'left' });
 
         doc.fillColor('#0f172a')
            .font('Helvetica-Bold')
@@ -255,7 +254,7 @@ class PdfService {
         doc.fillColor('#64748b')
            .font('Helvetica')
            .fontSize(7)
-           .text('University Result Archive', 380, footerY + 19, { align: 'right', width: 175 });
+           .text('University of Dhaka', 380, footerY + 19, { align: 'right', width: 175 });
 
         doc.end();
       } catch (error) {

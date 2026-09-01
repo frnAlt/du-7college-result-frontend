@@ -1,7 +1,7 @@
 {
-  "name": "board-results-bd",
+  "name": "du-7college-result-archive",
   "version": "1.0.0",
-  "description": "Secure Academic Results Portal & PDF Generation System",
+  "description": "Official Affiliated 7 College Result Archive & Verification System - University of Dhaka",
   "scripts": {
     "dev": "node scripts/dev.js",
     "dev:backend": "npm run dev --prefix backend",
@@ -12,13 +12,13 @@
     "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend"
   },
   "keywords": [
-    "board-results",
-    "du-7-college",
-    "academic-results",
-    "pdfkit",
+    "du-7college",
+    "university-of-dhaka",
+    "result-archive",
+    "pdf-transcript",
     "react",
     "express"
   ],
-  "author": "",
+  "author": "Office of the Controller of Examinations, University of Dhaka",
   "license": "MIT"
 }

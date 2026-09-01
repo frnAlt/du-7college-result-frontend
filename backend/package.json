@@ -1,7 +1,7 @@
 {
-  "name": "board-results-bd-backend",
+  "name": "du-7college-result-backend",
   "version": "1.0.0",
-  "description": "Secure Result Checking & PDF Generation Backend API",
+  "description": "Backend API for Affiliated 7 College Result Archive - University of Dhaka",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -9,13 +9,13 @@
     "test": "node --test --test-force-exit test/server.test.js"
   },
   "keywords": [
-    "board-results",
-    "result-portal",
+    "du-7-college",
+    "university-of-dhaka",
+    "result-archive",
     "express",
-    "pdfkit",
-    "secure-results"
+    "pdfkit"
   ],
-  "author": "",
+  "author": "Office of the Controller of Examinations, University of Dhaka",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",

@@ -1,8 +1,9 @@
 {
-  "name": "board-results-bd-frontend",
+  "name": "du-7college-result-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Frontend for Affiliated 7 College Result Archive - University of Dhaka",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
