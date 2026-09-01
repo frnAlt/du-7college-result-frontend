@@ -17,7 +17,7 @@ export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }
   const handleDownload = async () => {
     setIsDownloading(true);
     const safeName = (result?.name || 'Student').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const filename = `Result_${safeName}_${result?.roll || 'Roll'}.pdf`;
+    const filename = `${safeName}_7college_result.pdf`;
     await downloadPdfBlob(pdfUrl, filename);
     setIsDownloading(false);
   };
@@ -86,7 +86,7 @@ export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }
         {/* DU Result Header */}
         <div className="text-center pb-5 mb-5 border-b-2 border-slate-900 flex flex-col items-center">
           <img
-            src="/images/logo/logo.svg"
+            src="/images/logo/logo.jpg"
             alt="University of Dhaka Logo"
             className="w-20 h-20 object-contain mx-auto mb-2"
           />
@@ -96,7 +96,7 @@ export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }
           <h2 className="text-lg font-bold text-slate-800">
             Affiliated 7 Colleges
           </h2>
-          <h3 className="text-sm font-extrabold text-blue-900 underline mt-2 uppercase tracking-wide">
+          <h3 className="text-sm font-extrabold text-slate-900 underline mt-2 uppercase tracking-wide">
             Result Archive
           </h3>
         </div>
