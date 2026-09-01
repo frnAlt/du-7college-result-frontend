@@ -1,254 +1,65 @@
 [
   {
     "id": "std-001",
-    "roll": "123456",
-    "registration": "9876543210",
-    "name": "MD. ARIFUL ISLAM",
-    "father_name": "MD. RAFIQUL ISLAM",
-    "mother_name": "MORIOM BEGUM",
-    "college_name": "Dhaka College, Dhaka",
-    "sub_name": "Computer Science & Engineering",
-    "exam_title": "B.Sc (Honours) 4th Year Examination - 2023",
-    "session_name": "2019-2020",
-    "exam_roll": "123456",
-    "first_gpa": "3.65",
-    "second_gpa": "3.72",
-    "third_gpa": "3.80",
-    "fourth_gpa": "3.88",
-    "cgpa": "3.76",
-    "pstatus": "PASSED (First Class)",
-    "pdate": "15 August, 2024",
+    "roll": "13569",
+    "registration": "2022140676",
+    "name": "SAZIRAZAMAN MUTTACIN",
+    "father_name": null,
+    "mother_name": null,
+    "college_name": "Dhaka College",
+    "sub_name": "English",
+    "exam_title": "Honors 2nd Year 2024",
+    "session_name": "2022-23",
+    "first_gpa": null,
+    "second_gpa": "3.16",
+    "third_gpa": null,
+    "fourth_gpa": null,
+    "cgpa": null,
+    "pstatus": "Promoted",
+    "pdate": null,
     "courses": [
       {
-        "code": "CSE-401",
-        "title": "Artificial Intelligence & Neural Networks",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
+        "code": "221909",
+        "title": "Political Organization and the Political System of UK and USA",
+        "letter_grade": "B+",
+        "grade_point": "3.25",
+        "credit": "4"
       },
       {
-        "code": "CSE-402",
-        "title": "Software Architecture & Design Patterns",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
-      },
-      {
-        "code": "CSE-403",
-        "title": "Network Security & Cryptography",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
-      },
-      {
-        "code": "CSE-404",
-        "title": "Cloud Computing & DevOps",
+        "code": "222009",
+        "title": "Sociology of Bangladesh",
         "letter_grade": "A-",
         "grade_point": "3.50",
-        "credit": "3.0"
+        "credit": "4"
       },
       {
-        "code": "CSE-405",
-        "title": "Final Year Capstone Project / Thesis",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "6.0"
-      }
-    ],
-    "externalFetch": {
-      "enabled": false,
-      "pid": "1",
-      "yid": "4",
-      "eid": "104"
-    }
-  },
-  {
-    "id": "std-002",
-    "roll": "202401",
-    "registration": "1810987654",
-    "name": "NUSRAT JAHAN MIM",
-    "father_name": "MD. DELWAR HOSSAIN",
-    "mother_name": "NARGIS AKTER",
-    "college_name": "Eden Mohila College, Dhaka",
-    "sub_name": "English Literature",
-    "exam_title": "B.A. (Honours) 4th Year Examination - 2023",
-    "session_name": "2019-2020",
-    "exam_roll": "202401",
-    "first_gpa": "3.75",
-    "second_gpa": "3.80",
-    "third_gpa": "3.85",
-    "fourth_gpa": "3.90",
-    "cgpa": "3.82",
-    "pstatus": "PASSED (First Class)",
-    "pdate": "15 August, 2024",
-    "courses": [
-      {
-        "code": "ENG-401",
-        "title": "Modern British & American Drama",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
-      },
-      {
-        "code": "ENG-402",
-        "title": "Postcolonial Literature in English",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
-      },
-      {
-        "code": "ENG-403",
-        "title": "Literary Theory & Criticism",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
-      },
-      {
-        "code": "ENG-404",
-        "title": "20th Century Poetry & Prose",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
-      },
-      {
-        "code": "ENG-405",
-        "title": "Dissertation & Viva Voce",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
-      }
-    ],
-    "externalFetch": {
-      "enabled": false,
-      "pid": "1",
-      "yid": "4",
-      "eid": "104"
-    }
-  },
-  {
-    "id": "std-003",
-    "roll": "554433",
-    "registration": "1200334455",
-    "name": "TANVIR AHMED CHOWDHURY",
-    "father_name": "MUSTAFA CHOWDHURY",
-    "mother_name": "SALMA BEGUM",
-    "college_name": "Govt. Titumir College, Dhaka",
-    "sub_name": "Accounting & Information Systems",
-    "exam_title": "B.B.A. (Honours) 4th Year Examination - 2023",
-    "session_name": "2019-2020",
-    "exam_roll": "554433",
-    "first_gpa": "3.60",
-    "second_gpa": "3.68",
-    "third_gpa": "3.70",
-    "fourth_gpa": "3.75",
-    "cgpa": "3.68",
-    "pstatus": "PASSED (First Class)",
-    "pdate": "15 August, 2024",
-    "courses": [
-      {
-        "code": "AIS-401",
-        "title": "Advanced Accounting & Financial Reporting",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
-      },
-      {
-        "code": "AIS-402",
-        "title": "Corporate Taxation & Auditing Practices",
+        "code": "ENH201",
+        "title": "Introduction to drama",
         "letter_grade": "A-",
         "grade_point": "3.50",
-        "credit": "4.0"
+        "credit": "4"
       },
       {
-        "code": "AIS-403",
-        "title": "Strategic Management Accounting",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
+        "code": "ENH202",
+        "title": "Romantic poetry",
+        "letter_grade": "B-",
+        "grade_point": "2.75",
+        "credit": "4"
       },
       {
-        "code": "AIS-404",
-        "title": "Financial Markets & Institutions",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
+        "code": "ENH203",
+        "title": "17th century prose",
+        "letter_grade": "B",
+        "grade_point": "3.00",
+        "credit": "4"
       },
       {
-        "code": "AIS-405",
-        "title": "Internship / Research Report & Defense",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
+        "code": "ENH204",
+        "title": "Advance reading and writing",
+        "letter_grade": "B",
+        "grade_point": "3.00",
+        "credit": "4"
       }
-    ],
-    "externalFetch": {
-      "enabled": false,
-      "pid": "1",
-      "yid": "4",
-      "eid": "104"
-    }
-  },
-  {
-    "id": "std-004",
-    "roll": "778899",
-    "registration": "1910223344",
-    "name": "SADIA SULTANA",
-    "father_name": "MD. ABDUR RAHIM",
-    "mother_name": "SHAHIDA BEGUM",
-    "college_name": "Govt. Bangla College, Dhaka",
-    "sub_name": "Economics",
-    "exam_title": "B.S.S. (Honours) 4th Year Examination - 2023",
-    "session_name": "2019-2020",
-    "exam_roll": "778899",
-    "first_gpa": "3.62",
-    "second_gpa": "3.70",
-    "third_gpa": "3.74",
-    "fourth_gpa": "3.78",
-    "cgpa": "3.71",
-    "pstatus": "PASSED (First Class)",
-    "pdate": "15 August, 2024",
-    "courses": [
-      {
-        "code": "ECO-401",
-        "title": "Applied Econometrics & Quantitative Analysis",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
-      },
-      {
-        "code": "ECO-402",
-        "title": "International Trade & Policy",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
-      },
-      {
-        "code": "ECO-403",
-        "title": "Development Economics of Bangladesh",
-        "letter_grade": "A",
-        "grade_point": "3.75",
-        "credit": "4.0"
-      },
-      {
-        "code": "ECO-404",
-        "title": "Public Finance & Fiscal Management",
-        "letter_grade": "A-",
-        "grade_point": "3.50",
-        "credit": "4.0"
-      },
-      {
-        "code": "ECO-405",
-        "title": "Monetary Economics & Financial Institutions",
-        "letter_grade": "A+",
-        "grade_point": "4.00",
-        "credit": "4.0"
-      }
-    ],
-    "externalFetch": {
-      "enabled": false,
-      "pid": "1",
-      "yid": "4",
-      "eid": "104"
-    }
+    ]
   }
 ]

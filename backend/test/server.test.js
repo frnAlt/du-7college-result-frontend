@@ -66,24 +66,28 @@ describe('BoardResultsBD & DU 7-College API Backend Test Suite', () => {
     const res = await makeRequest('/api/result', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roll: '123456', registration: '1111111111' })
+      body: JSON.stringify({ roll: '13569', registration: '1111111111' })
     });
     assert.strictEqual(res.status, 404);
     assert.strictEqual(res.body.success, false);
     assert.strictEqual(res.body.message, 'Result Not Found');
   });
 
-  test('5. Valid allowed roll and registration returns 200 and result data', async () => {
+  test('5. Valid allowed student (13569 / 2022140676) returns 200 and result data', async () => {
     const res = await makeRequest('/api/result', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roll: '123456', registration: '9876543210' })
+      body: JSON.stringify({ roll: '13569', registration: '2022140676' })
     });
 
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.body.success, true);
-    assert.strictEqual(res.body.result.name, 'MD. ARIFUL ISLAM');
-    assert.strictEqual(res.body.result.roll, '123456');
+    assert.strictEqual(res.body.result.name, 'SAZIRAZAMAN MUTTACIN');
+    assert.strictEqual(res.body.result.roll, '13569');
+    assert.strictEqual(res.body.result.college_name, 'Dhaka College');
+    assert.strictEqual(res.body.result.second_gpa, '3.16');
+    assert.strictEqual(res.body.result.pstatus, 'Promoted');
+    assert.strictEqual(res.body.result.courses.length, 6);
     assert.ok(res.body.pdfUrl.startsWith('/api/result/pdf/'));
 
     // 6. Test PDF stream endpoint
@@ -99,25 +103,7 @@ describe('BoardResultsBD & DU 7-College API Backend Test Suite', () => {
     assert.ok(downloadRes.headers.get('content-disposition').includes('attachment'));
   });
 
-  test('8. Second allowed student (202401/1810987654) returns correct result', async () => {
-    const res = await makeRequest('/api/result', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roll: '202401', registration: '1810987654' })
-    });
-    assert.strictEqual(res.status, 200);
-    assert.strictEqual(res.body.success, true);
-    assert.strictEqual(res.body.result.name, 'NUSRAT JAHAN MIM');
-    assert.strictEqual(res.body.result.college_name, 'Eden Mohila College, Dhaka');
-  });
-
-  test('9. Invalid/fake PDF token returns 404', async () => {
-    const res = await makeRequest('/api/result/pdf/fake-token-123456');
-    assert.strictEqual(res.status, 404);
-    assert.strictEqual(res.body.success, false);
-  });
-
-  test('10. DU 7-College /api/web-select actions work properly', async () => {
+  test('8. DU 7-College /api/web-select actions work properly with student data', async () => {
     // get_pid2
     const pidRes = await makeRequest('/api/web-select', {
       method: 'POST',
@@ -131,11 +117,11 @@ describe('BoardResultsBD & DU 7-College API Backend Test Suite', () => {
     const resultRes = await makeRequest('/api/web-select', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'get_result', roll: '123456', reg: '9876543210' })
+      body: JSON.stringify({ action: 'get_result', roll: '13569', reg: '2022140676' })
     });
     assert.strictEqual(resultRes.status, 200);
-    assert.strictEqual(resultRes.body.result.name, 'MD. ARIFUL ISLAM');
-    assert.ok(resultRes.body.courses.length > 0);
+    assert.strictEqual(resultRes.body.result.name, 'SAZIRAZAMAN MUTTACIN');
+    assert.strictEqual(resultRes.body.courses.length, 6);
 
     // get_result with unlisted roll/reg
     const notFoundRes = await makeRequest('/api/web-select', {
@@ -145,5 +131,11 @@ describe('BoardResultsBD & DU 7-College API Backend Test Suite', () => {
     });
     assert.strictEqual(notFoundRes.status, 404);
     assert.ok(notFoundRes.body.error.includes('Result Not Found'));
+  });
+
+  test('9. Invalid/fake PDF token returns 404', async () => {
+    const res = await makeRequest('/api/result/pdf/fake-token-123456');
+    assert.strictEqual(res.status, 404);
+    assert.strictEqual(res.body.success, false);
   });
 });

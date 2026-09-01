@@ -3,8 +3,8 @@ import { Search, Loader2, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function SearchForm({ onSearch, isLoading }) {
   const [program, setProgram] = useState('1'); // Honours
-  const [examYear, setExamYear] = useState('4'); // Fourth Year
-  const [exam, setExam] = useState('104'); // Honours 4th Year 2023
+  const [examYear, setExamYear] = useState('2'); // Second Year
+  const [exam, setExam] = useState('105'); // Honours 2nd Year 2024
   const [registration, setRegistration] = useState('');
   const [roll, setRoll] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -98,9 +98,9 @@ export default function SearchForm({ onSearch, isLoading }) {
               disabled={isLoading}
               className="w-full px-3 py-2.5 text-sm bg-white border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-800"
             >
+              <option value="105">Honours 2nd Year 2024</option>
               <option value="104">Honours 4th Year 2023</option>
               <option value="91">Honours 1st Year 2023</option>
-              <option value="105">Honours 2nd Year 2023</option>
               <option value="106">Honours 3rd Year 2023</option>
             </select>
           </div>
@@ -161,24 +161,16 @@ export default function SearchForm({ onSearch, isLoading }) {
         <div className="mt-6 pt-4 border-t border-slate-100 bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-lg text-xs text-slate-600">
           <div className="flex items-center gap-1 font-semibold mb-2 text-slate-700">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>Allowed Test Credentials (ক্লিক করলেই ফিল হবে):</span>
+            <span>Allowed Test Credentials:</span>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => handleQuickFill('123456', '9876543210')}
+              onClick={() => handleQuickFill('13569', '2022140676')}
               className="bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-800 border border-slate-300 px-2.5 py-1.5 rounded font-medium transition flex items-center gap-1 cursor-pointer shadow-2xs"
             >
               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              <span>Roll: <b>123456</b> | Reg: <b>9876543210</b></span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('202401', '1810987654')}
-              className="bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-800 border border-slate-300 px-2.5 py-1.5 rounded font-medium transition flex items-center gap-1 cursor-pointer shadow-2xs"
-            >
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-              <span>Roll: <b>202401</b> | Reg: <b>1810987654</b></span>
+              <span>Roll: <b>13569</b> | Reg: <b>2022140676</b></span>
             </button>
           </div>
         </div>
