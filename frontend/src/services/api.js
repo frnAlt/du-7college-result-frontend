@@ -37,3 +37,31 @@ export function getPdfUrl(path, isDownload = false) {
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
   return isDownload ? `${url}?download=1` : url;
 }
+
+/**
+ * Robust Client-Side PDF Download via Blob
+ * Guarantees cross-browser file download without navigation errors
+ */
+export async function downloadPdfBlob(pdfPath, filename = 'Student_Result.pdf') {
+  try {
+    const url = getPdfUrl(pdfPath, true);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Server returned status ${response.status}`);
+    }
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 2000);
+    return true;
+  } catch (error) {
+    console.error('Blob download failed, falling back to direct window.open:', error);
+    window.open(getPdfUrl(pdfPath, true), '_blank');
+    return false;
+  }
+}

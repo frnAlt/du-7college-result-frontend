@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Eye, ArrowLeft, Printer } from 'lucide-react';
-import { getPdfUrl } from '../services/api';
+import { Download, Eye, ArrowLeft, Printer, Loader2 } from 'lucide-react';
+import { getPdfUrl, downloadPdfBlob } from '../services/api';
 
 export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }) {
   const [printDate, setPrintDate] = useState('');
-  const downloadUrl = getPdfUrl(pdfUrl, true);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     setPrintDate(new Date().toLocaleString('en-US', {
@@ -13,6 +13,18 @@ export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }
       timeStyle: 'medium'
     }));
   }, []);
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    const safeName = (result?.name || 'Student').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = `Result_${safeName}_${result?.roll || 'Roll'}.pdf`;
+    await downloadPdfBlob(pdfUrl, filename);
+    setIsDownloading(false);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -38,19 +50,29 @@ export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }
             <span>Open PDF</span>
           </button>
 
-          <a
-            href={downloadUrl}
-            download
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded transition cursor-pointer"
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded transition cursor-pointer disabled:opacity-75"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download PDF</span>
-          </a>
+            {isDownloading ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Downloading...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5" />
+                <span>Download PDF</span>
+              </>
+            )}
+          </button>
 
           <button
             type="button"
-            onClick={() => window.print()}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded transition border border-slate-300 cursor-pointer"
+            onClick={handlePrint}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded transition border border-slate-300 cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print</span>
@@ -59,7 +81,7 @@ export default function ResultCard({ result, pdfUrl, onOpenPdfPreview, onReset }
       </div>
 
       {/* Official Result Sheet Box */}
-      <div className="w-full bg-white rounded-lg shadow-lg border border-slate-200 p-6 sm:p-8 text-slate-900">
+      <div className="print-card w-full bg-white rounded-lg shadow-lg border border-slate-200 p-6 sm:p-8 text-slate-900">
         
         {/* DU Result Header */}
         <div className="text-center pb-5 mb-5 border-b-2 border-slate-900 flex flex-col items-center">
