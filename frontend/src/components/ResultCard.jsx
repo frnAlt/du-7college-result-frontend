@@ -7,8 +7,19 @@ export default function ResultCard({ result, courses: propCourses, onReset, onSe
   const [printDate, setPrintDate] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleReset = onSearchAgain || onReset;
   const courses = (propCourses && propCourses.length > 0) ? propCourses : (result?.courses || []);
+
+  const handleResetClick = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (typeof onSearchAgain === 'function') {
+      onSearchAgain();
+    } else if (typeof onReset === 'function') {
+      onReset();
+    }
+  };
 
   useEffect(() => {
     // Format matching ss_output.jpg: M/D/YYYY, H:MM:SS AM/PM
@@ -17,7 +28,11 @@ export default function ResultCard({ result, courses: propCourses, onReset, onSe
     setPrintDate(formatted);
   }, []);
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setIsDownloading(true);
     const cardEl = resultRef.current;
     const headerEl = headerRef.current;
@@ -227,7 +242,7 @@ export default function ResultCard({ result, courses: propCourses, onReset, onSe
 
         <button
           type="button"
-          onClick={handleReset}
+          onClick={handleResetClick}
           style={{
             padding: '9px 22px',
             backgroundColor: '#4b5563',
