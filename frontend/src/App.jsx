@@ -5,13 +5,16 @@ import SearchForm from './components/SearchForm';
 import ResultCard from './components/ResultCard';
 import ResultNotFound from './components/ResultNotFound';
 import LoadingState from './components/LoadingState';
+import PdfPreviewModal from './components/PdfPreviewModal';
 import { checkResult } from './services/api';
 
 export default function App() {
   const [viewState, setViewState] = useState('search'); // 'search' | 'loading' | 'found' | 'not_found'
   const [resultData, setResultData] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState('');
   const [searchedRoll, setSearchedRoll] = useState('');
   const [searchedReg, setSearchedReg] = useState('');
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   const handleSearch = async (roll, registration, extra = {}) => {
     setSearchedRoll(roll);
@@ -23,6 +26,7 @@ export default function App() {
 
       if (data && data.success && data.result) {
         setResultData(data.result);
+        setPdfUrl(data.pdfUrl || '');
         setViewState('found');
       } else {
         setViewState('not_found');
@@ -35,6 +39,8 @@ export default function App() {
   const handleReset = () => {
     setViewState('search');
     setResultData(null);
+    setPdfUrl('');
+    setIsPdfModalOpen(false);
   };
 
   return (
@@ -65,11 +71,22 @@ export default function App() {
         {viewState === 'found' && resultData && (
           <ResultCard
             result={resultData}
+            pdfUrl={pdfUrl}
+            onOpenPdfPreview={() => setIsPdfModalOpen(true)}
             onReset={handleReset}
           />
         )}
 
       </main>
+
+      {/* Interactive In-Modal PDF Preview */}
+      <PdfPreviewModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        pdfUrl={pdfUrl}
+        studentName={resultData?.name}
+        roll={resultData?.roll}
+      />
 
       {/* DU Footer */}
       <Footer />
